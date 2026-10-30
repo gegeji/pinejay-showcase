@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const PAGES = ['course', 'weather', 'chronicle', 'widgets', 'built'];
+  const PAGES = ['whats', 'course', 'weather', 'chronicle', 'review', 'widgets', 'built'];
   const LANGS = [
     ['en', 'EN'],
     ['zh-CN', '简体'],
@@ -26,7 +26,7 @@
 
   function pickPage() {
     const p = location.hash.replace('#', '');
-    return PAGES.includes(p) ? p : 'course';
+    return PAGES.includes(p) ? p : 'whats';
   }
 
   // Small element builder: h('div', { class: 'x', onclick: fn }, child, ...)
@@ -121,7 +121,7 @@
     const replay = h('button', { type: 'button' }, t.ui.replay);
     const exhibit = h('section', { class: 'tg', 'aria-label': opts.chat.name },
       h('div', { class: 'tg-head' },
-        h('div', { class: 'avatar' + (opts.sun ? ' sun' : '') }, opts.chat.avatar),
+        h('div', { class: 'avatar' + (opts.sun ? ' sun' : '') + (opts.dark ? ' dark' : '') }, opts.chat.avatar),
         h('div', {}, h('div', { class: 'tg-name' }, opts.chat.name), h('div', { class: 'tg-sub' }, opts.chat.sub))),
       msgs,
       h('div', { class: 'tg-foot' }, stepEl, h('div', { class: 'tg-ctrl' }, replay, primary)));
@@ -179,10 +179,16 @@
     return () => clearTimeout(timer);
   }
 
+  // A body paragraph is a string, or a list of strings and { text, href } links.
+  function para(b) {
+    const parts = Array.isArray(b) ? b : [b];
+    return h('p', {}, parts.map((x) => (typeof x === 'string' ? x : h('a', { href: x.href, rel: 'external' }, x.text))));
+  }
+
   function intro(p) {
     return h('section', { class: 'intro' },
       h('h1', {}, p.title),
-      p.body.map((b) => h('p', {}, b)));
+      p.body.map(para));
   }
 
   // ── Pages ────────────────────────────────────────────────────────────────
@@ -423,6 +429,71 @@
     return () => clearTimeout(timer);
   }
 
+  function whatsPage(main) {
+    const w = CONTENT[lang].whats;
+    const d = w.diagram;
+    main.classList.add('stacked');
+    main.append(h('section', { class: 'intro wide' }, h('h1', {}, w.title), w.body.map(para)));
+
+    const box = (cls, [cat, title, desc]) => h('div', { class: 'dg-box ' + cls }, h('div', { class: 'cat' }, cat), h('div', { class: 't' }, title), h('div', { class: 'd' }, desc));
+    const label = (cls, n, text) => h('div', { class: 'dg-label ' + cls }, n ? h('span', { class: 'n' }, n) : null, h('span', {}, text));
+    const arrows = `
+      <line x1="182" y1="196" x2="272" y2="196" class="a-main"/><path d="M268 191 L276 196 L268 201" class="a-main"/>
+      <line x1="278" y1="232" x2="188" y2="232" class="a-reply"/><path d="M192 227 L184 232 L192 237" class="a-reply"/>
+      <line x1="492" y1="214" x2="582" y2="214" class="a-main"/><path d="M578 209 L586 214 L578 219" class="a-main"/>
+      <line x1="822" y1="214" x2="912" y2="214" class="a-model"/><path d="M908 209 L916 214 L908 219" class="a-model"/>
+      <line x1="385" y1="262" x2="385" y2="334" class="a-keep"/>`;
+    main.append(h('section', { class: 'dg-scroll' },
+      h('div', { class: 'dg', role: 'img', 'aria-label': [d.you[1], d.host[1], d.group, d.model[1]].join(', ') },
+        svg(arrows, 1080, 450),
+        box('you', d.you),
+        box('host', d.host),
+        box('records', d.records),
+        box('model', d.model),
+        h('div', { class: 'dg-group' },
+          h('div', { class: 'cap' }, d.group),
+          d.agents.map((a) => h('div', { class: 'dg-box agent' }, h('div', { class: 'cat' }, d.container), h('div', { class: 't' }, a), h('div', { class: 'd' }, d.agentDesc))),
+          h('div', { class: 'note' }, d.groupNote)),
+        label('l1', '1', d.arrows.message),
+        label('l4 reply', '4', d.arrows.reply),
+        label('l2 stack', '2', d.arrows.toAgent),
+        label('l3 stack model', '3', d.arrows.asks),
+        h('div', { class: 'dg-label l3n model' }, d.arrows.keyNote),
+        h('div', { class: 'dg-label lk' }, d.arrows.keeps))));
+    return () => main.classList.remove('stacked');
+  }
+
+  function reviewPage(main) {
+    const r = CONTENT[lang].review;
+    main.append(intro(r));
+    const chatHost = h('div', { style: 'display:contents' });
+    main.append(chatHost);
+    main.append(h('section', { class: 'side' },
+      h('div', { class: 'label' }, r.side.label),
+      h('div', { class: 'rows' }, r.side.rows.map(([time, head, desc]) => h('div', { class: 'row' },
+        h('span', { class: 'time' }, time),
+        h('div', { class: 'stack' }, h('div', { class: 'head' }, head), h('div', { class: 'desc' }, desc))))),
+      h('div', { class: 'check' }, h('div', { class: 'label' }, r.side.checkLabel), h('p', {}, r.side.checkText))));
+
+    return mountChat(chatHost, {
+      chat: r.chat,
+      dark: true,
+      script: r.script,
+      extra: (m) => (m.quotes ? h('div', { class: 'quotes' }, m.quotes.map(([q, src]) => h('div', { class: 'quote' }, h('span', {}, q), h('span', { class: 'src' }, src)))) : null),
+      keyboard: (kind, api) => {
+        const buttons = r.keys[kind].map(([id, labelText]) => h('button', {
+          type: 'button',
+          onclick: () => {
+            buttons.forEach((b) => { b.disabled = true; });
+            api.append({ from: 'me', time: '21:02', text: [labelText] });
+            api.append({ from: 'bot', time: '21:02', text: [r.replies[id]] });
+          },
+        }, labelText));
+        return api.keys(buttons);
+      },
+    });
+  }
+
   // ── Interactive widget: drag time and watch the front pass ──────────────
 
   function openWidget(w) {
@@ -468,7 +539,7 @@
 
   // ── Wiring ──────────────────────────────────────────────────────────────
 
-  const RENDER = { course: coursePage, weather: weatherPage, chronicle: chroniclePage, widgets: widgetsPage, built: builtPage };
+  const RENDER = { whats: whatsPage, course: coursePage, weather: weatherPage, chronicle: chroniclePage, review: reviewPage, widgets: widgetsPage, built: builtPage };
 
   function renderAll() {
     teardown();
@@ -480,6 +551,24 @@
     window.scrollTo(0, 0);
   }
 
-  window.addEventListener('hashchange', () => { page = pickPage(); renderAll(); });
+  // Page switch: the rail stays, the content fades out (120 ms) and the new
+  // page fades in while rising 6 px (200 ms). Reduced motion switches at once.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let switching = null;
+  function switchPage() {
+    const main = document.getElementById('page');
+    clearTimeout(switching);
+    if (reduceMotion.matches) { renderAll(); return; }
+    main.classList.remove('entering');
+    main.classList.add('leaving');
+    switching = setTimeout(() => {
+      main.classList.remove('leaving');
+      renderAll();
+      void main.offsetWidth; // restart the entry animation
+      main.classList.add('entering');
+    }, 120);
+  }
+
+  window.addEventListener('hashchange', () => { page = pickPage(); switchPage(); });
   renderAll();
 })();

@@ -52,7 +52,6 @@ a:hover { text-decoration: underline; }
 .nav button[aria-current="page"] { color: var(--ink); font-weight: 600; }
 .nav button[aria-current="page"]::before { background: var(--ink); }
 .rail-foot { flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; }
-.fictional { font-size: 12px; line-height: 18px; color: var(--muted); }
 .home { font-size: 13px; line-height: 20px; }
 
 /* Page */
@@ -309,7 +308,7 @@ main.stacked { flex-direction: column; gap: 44px; }
   .nav button { flex-shrink: 0; white-space: nowrap; }
   .nav button::before { display: none; }
   .nav button[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--ink); }
-  .rail-foot { flex-direction: row; justify-content: space-between; }
+  .rail-foot { flex-direction: row; justify-content: flex-end; }
   main { padding: 28px 16px 40px; gap: 28px; }
   h1 { font-size: 34px; line-height: 40px; }
   .tg { width: 100%; height: 640px; min-height: 0; }

@@ -246,7 +246,7 @@ window.CONTENT = {
             "name": "Northbank",
             "line": "6° colder than yesterday, wear a jacket this morning",
             "detail": "High 14° today, 20° yesterday",
-            "day": [
+            "icons": ["cloud", "cloud"], "day": [
               "Day cloudy",
               "9~14°"
             ],
@@ -259,7 +259,7 @@ window.CONTENT = {
             "name": "East Lake",
             "line": "Rain likely 14:00 to 20:00, take an umbrella",
             "detail": "About 12 mm more today, chance up to 80%",
-            "day": [
+            "icons": ["rain", "rain"], "day": [
               "Day rain",
               "11~15°"
             ],
@@ -271,7 +271,7 @@ window.CONTENT = {
           {
             "name": "South Port",
             "air": "Good, today up to AQI 31",
-            "day": [
+            "icons": ["sun", "moon"], "day": [
               "Day sunny",
               "13~19°"
             ],
@@ -401,24 +401,13 @@ window.CONTENT = {
     },
     widgets: {
       title: "If it’s hard to explain, it draws a diagram",
-      body: [
-        "When a question is easier to explain with a picture, it puts a diagram in the answer and talks me through it.",
-        "Tapping it opens a page where I can move things around on my phone.",
-      ],
-      chat: { avatar: 'F', name: 'Reading a forecast', sub: 'Lesson 4, cold fronts' },
+      body: ["When a question is easier to explain with a picture, it puts a diagram in the answer and talks me through it.", "Once I open the diagram I can play with it directly, for example dragging the time slider to watch the typhoon move forward step by step."],
+      chat: {"avatar": "F", "name": "Reading a forecast", "sub": "Lesson 5, typhoon tracks"},
       script: [
-        { from: 'me', time: '20:31', text: ['Why does it rain first and only turn cold afterwards when a cold front comes through?'] },
-        { from: 'bot', time: '20:31', widget: true, text: ['Cold air is heavy, so it slides in underneath like a wedge. The warm, damp air in front is pushed up and cools, and that forms the cloud on the right. The rain comes from that cloud.', 'You feel the cold only when the wedge itself reaches you, a few hours after the rain starts.'] },
+        { from: 'me', time: '20:31', text: ["What does the cone on a typhoon track map mean, the one that keeps getting wider? Does the typhoon get bigger?"] },
+        { from: 'bot', time: '20:31', widget: true, text: ["The typhoon isn’t getting bigger. The cone shows where its centre could go: the further ahead the forecast, the less certain it is, so the circles get bigger.", "By day three the circle already covers South Port, but the centre line runs to the east of it. A direct hit and a near miss are both possible; look again when it’s closer."] },
       ],
-      widget: {
-        title: 'A cold front, side view',
-        cold: 'cold air pushes in',
-        warm: 'warm air lifted',
-        open: 'Open the interactive version',
-        slider: 'Hours from now',
-        you: 'You are here',
-        states: ['Warm and cloudy. Rain is on the way.', 'Raining. The warm air that was pushed up is right above you.', 'Cold and clearing. The cold air has reached you.'],
-      },
+      widget: {"title": "Typhoon Haiou, next 72 hours", "issued": "Issued 8 Nov, 20:00", "place": "South Port", "labels": ["Now", "24 h", "48 h", "72 h"], "legend": ["Where the centre could go", "Forecast track", "Track so far"], "open": "Open the interactive version", "slider": "Hours from now", "unit": "h", "states": ["Right now the centre is out at sea, about {km} km from South Port.", "In a day the centre should be somewhere in this small circle, about {km} km from South Port.", "In two days the circle is twice as big and the centre is about {km} km from South Port. The further ahead, the less certain, so the bigger the circle.", "In three days South Port is inside the circle, but the centre line passes to the east. A direct hit and a near miss are both possible."]},
       steps: {
         label: "How a diagram is made",
         rows: [
@@ -695,7 +684,7 @@ window.CONTENT = {
             "name": "江北区",
             "line": "比昨天冷 6°，早上出门加件外套",
             "detail": "今天最高 14°，昨天最高 20°",
-            "day": [
+            "icons": ["cloud", "cloud"], "day": [
               "日间 阴",
               "9~14°"
             ],
@@ -708,7 +697,7 @@ window.CONTENT = {
             "name": "东湖",
             "line": "14 时至 20 时可能下雨，记得带伞",
             "detail": "今天还有约 12 mm，概率最高 80%",
-            "day": [
+            "icons": ["rain", "rain"], "day": [
               "日间 雨",
               "11~15°"
             ],
@@ -720,7 +709,7 @@ window.CONTENT = {
           {
             "name": "南港",
             "air": "优，今天最高 AQI 31",
-            "day": [
+            "icons": ["sun", "moon"], "day": [
               "日间 晴",
               "13~19°"
             ],
@@ -839,21 +828,13 @@ window.CONTENT = {
     },
     widgets: {
       title: "讲不清的地方，\n画张图解释",
-      body: ["问题用图更好解释清楚时，它会在回答里放一张图，再对着图讲。", "点开这张图，可以在手机上拖动、点选。"],
-      chat: { avatar: '天', name: '看懂天气预报', sub: '第 4 讲：冷锋' },
+      body: ["问题用图更好解释清楚时，它会在回答里放一张图，再对着图讲。", "图点开后可以直接上手交互，比如拖动时间条，看台风一步步往前移动。"],
+      chat: {"avatar": "天", "name": "看懂天气预报", "sub": "第 5 讲：台风路径图"},
       script: [
-        { from: 'me', time: '20:31', text: ['冷锋过境的时候，为什么先下雨，过后才降温？'] },
-        { from: 'bot', time: '20:31', widget: true, text: ['冷空气重，像楔子一样从下面插进来。前面又暖又湿的空气被抬起、变冷，形成右边那团云，雨就是从这团云里下来的。', '等冷空气楔子本身到了你这里，你才会觉得冷，通常比开始下雨晚几个小时。'] },
+        { from: 'me', time: '20:31', text: ["台风路径图上那个越画越宽的锥形是什么意思？是说台风会越变越大吗？"] },
+        { from: 'bot', time: '20:31', widget: true, text: ["不是台风变大。锥形画的是台风中心可能经过的范围：预报越往后越说不准，所以圈越画越大。", "三天后的圈已经把南港包进去了，但中心线在南港东边。正面经过和擦过去都有可能，等离得更近再看。"] },
       ],
-      widget: {
-        title: '冷锋过境，侧面看',
-        cold: '冷空气插进来',
-        warm: '暖空气被抬升',
-        open: '打开交互版',
-        slider: '从现在起的小时数',
-        you: '你在这里',
-        states: ['暖，多云。雨正在过来。', '在下雨。被抬起的暖空气就在你头顶。', '变冷，转晴。冷空气到了。'],
-      },
+      widget: {"title": "台风「海鸥」未来 72 小时", "issued": "11 月 8 日 20 时发布", "place": "南港", "labels": ["现在", "24 小时", "48 小时", "72 小时"], "legend": ["中心可能经过的范围", "预报路径", "走过的路"], "open": "打开交互版", "slider": "从现在起的小时数", "unit": "小时", "states": ["现在中心在海上，离南港约 {km} 公里。", "一天后，中心大概在这个小圈里，离南港约 {km} 公里。", "两天后，圈大了一倍，中心离南港约 {km} 公里。越往后越说不准，圈就越大。", "三天后，南港已经在圈里，但中心线在东边。正面经过和擦过去都有可能。"]},
       steps: {
         label: "一张说明图是怎么做出来的",
         rows: [
@@ -1127,7 +1108,7 @@ window.CONTENT = {
             "name": "江北區",
             "line": "比昨天冷 6°，早上出門加件外套",
             "detail": "今天最高 14°，昨天最高 20°",
-            "day": [
+            "icons": ["cloud", "cloud"], "day": [
               "日間 陰",
               "9~14°"
             ],
@@ -1140,7 +1121,7 @@ window.CONTENT = {
             "name": "東湖",
             "line": "14 時至 20 時可能下雨，記得帶傘",
             "detail": "今天還有約 12 mm，概率最高 80%",
-            "day": [
+            "icons": ["rain", "rain"], "day": [
               "日間 雨",
               "11~15°"
             ],
@@ -1152,7 +1133,7 @@ window.CONTENT = {
           {
             "name": "南港",
             "air": "良好，今天最高 AQI 31",
-            "day": [
+            "icons": ["sun", "moon"], "day": [
               "日間 晴",
               "13~19°"
             ],
@@ -1271,21 +1252,13 @@ window.CONTENT = {
     },
     widgets: {
       title: "講不清的地方，\n畫張圖解釋",
-      body: ["問題用圖更容易解釋清楚時，它會在回答中放一張圖，再對著圖講解。", "打開這張圖，可以在手機上拖動、點選。"],
-      chat: { avatar: '天', name: '看懂天氣預報', sub: '第 4 課：冷鋒' },
+      body: ["問題用圖更容易解釋清楚時，它會在回答中放一張圖，再對著圖講解。", "圖打開後可以直接上手互動，例如拖動時間條，看颱風一步步向前移動。"],
+      chat: {"avatar": "天", "name": "看懂天氣預報", "sub": "第 5 課：颱風路徑圖"},
       script: [
-        { from: 'me', time: '20:31', text: ['冷鋒過境時，為甚麼會先下雨，之後才降溫？'] },
-        { from: 'bot', time: '20:31', widget: true, text: ['冷空氣較重，會像楔子一樣從下方插入。前方溫暖潮濕的空氣被抬升並冷卻，形成右邊的雲層，雨就是從這團雲落下的。', '要等冷空氣楔子本身抵達你所在的位置，你才會感到寒冷，通常比開始下雨晚數小時。'] },
+        { from: 'me', time: '20:31', text: ["颱風路徑圖上那個越畫越闊的錐形是甚麼意思？是說颱風會越變越大嗎？"] },
+        { from: 'bot', time: '20:31', widget: true, text: ["不是颱風變大。錐形畫的是颱風中心可能經過的範圍：預報越往後越說不準，所以圈越畫越大。", "三天後的圈已經把南港包進去了，但中心線在南港東邊。正面吹襲和擦過都有可能，等距離近一點再看。"] },
       ],
-      widget: {
-        title: '冷鋒過境側面圖',
-        cold: '冷空氣插入',
-        warm: '暖空氣被抬升',
-        open: '打開互動版本',
-        slider: '由現在起計的小時數',
-        you: '你在這裏',
-        states: ['溫暖多雲，雨正在接近。', '正在下雨，被抬升的暖空氣就在你上方。', '轉冷並逐漸放晴，冷空氣已經抵達。'],
-      },
+      widget: {"title": "颱風「海鷗」未來 72 小時", "issued": "11 月 8 日 20 時發布", "place": "南港", "labels": ["現在", "24 小時", "48 小時", "72 小時"], "legend": ["中心可能經過的範圍", "預報路徑", "走過的路"], "open": "打開互動版", "slider": "從現在起的小時數", "unit": "小時", "states": ["現在中心在海上，離南港約 {km} 公里。", "一天後，中心大概在這個小圈裡，離南港約 {km} 公里。", "兩天後，圈大了一倍，中心離南港約 {km} 公里。越往後越說不準，圈就越大。", "三天後，南港已經在圈裡，但中心線在東邊。正面吹襲和擦過都有可能。"]},
       steps: {
         label: "一張說明圖是怎樣做出來的",
         rows: [
@@ -1559,7 +1532,7 @@ window.CONTENT = {
             "name": "江北区",
             "line": "昨日より 6° 寒い、朝は上着を一枚",
             "detail": "今日の最高 14°、昨日は 20°",
-            "day": [
+            "icons": ["cloud", "cloud"], "day": [
               "日中 くもり",
               "9~14°"
             ],
@@ -1572,7 +1545,7 @@ window.CONTENT = {
             "name": "東湖",
             "line": "14 時から 20 時に雨の可能性、傘を忘れずに",
             "detail": "今日はあと約 12 mm、確率は最高 80%",
-            "day": [
+            "icons": ["rain", "rain"], "day": [
               "日中 雨",
               "11~15°"
             ],
@@ -1584,7 +1557,7 @@ window.CONTENT = {
           {
             "name": "南港",
             "air": "良好、今日の最高 AQI 31",
-            "day": [
+            "icons": ["sun", "moon"], "day": [
               "日中 晴れ",
               "13~19°"
             ],
@@ -1703,21 +1676,13 @@ window.CONTENT = {
     },
     widgets: {
       title: "説明しにくい\nところは図で",
-      body: ["図のほうが伝わる質問には、回答に図を一枚入れて、図を見ながら説明します。", "図をタップすると、スマホでドラッグしたりタップしたりできます。"],
-      chat: { avatar: '天', name: '天気予報を読む', sub: '第 4 回：寒冷前線' },
+      body: ["図のほうが伝わる質問には、回答に図を一枚入れて、図を見ながら説明します。", "図を開くとそのまま操作できます。たとえば時間のスライダーを動かすと、台風が少しずつ進んでいく様子が見られます。"],
+      chat: {"avatar": "天", "name": "天気予報を読む", "sub": "第 5 回：台風の進路図"},
       script: [
-        { from: 'me', time: '20:31', text: ['寒冷前線が通るとき、どうして先に雨が降って、寒くなるのはあとなの？'] },
-        { from: 'bot', time: '20:31', widget: true, text: ['冷たい空気は重いので、くさびのように下へ入り込みます。前にある暖かく湿った空気が持ち上げられて冷え、右の雲になります。雨はこの雲から降ります。', '寒さを感じるのは、くさびそのものが届いてから。雨が降り始めて数時間後です。'] },
+        { from: 'me', time: '20:31', text: ["台風の進路図で、どんどん広がっていく円錐みたいな形は何？台風が大きくなるってこと？"] },
+        { from: 'bot', time: '20:31', widget: true, text: ["台風が大きくなるわけではありません。円錐は台風の中心が通る可能性のある範囲です。先の予報ほど不確かになるので、円が大きくなります。", "3 日後の円には南港が入っていますが、中心線は南港の東側です。直撃もかすめるだけもありえるので、近づいてからもう一度確認しましょう。"] },
       ],
-      widget: {
-        title: '寒冷前線を横から見る',
-        cold: '冷たい空気が入り込む',
-        warm: '暖かい空気が持ち上がる',
-        open: 'インタラクティブ版を開く',
-        slider: '今から何時間後',
-        you: '現在地',
-        states: ['暖かく曇り。雨が近づいています。', '雨。持ち上げられた暖かい空気が真上にあります。', '寒くなって晴れてきました。冷たい空気が届きました。'],
-      },
+      widget: {"title": "台風「カモメ」この先 72 時間", "issued": "11 月 8 日 20 時発表", "place": "南港", "labels": ["現在", "24 時間", "48 時間", "72 時間"], "legend": ["中心が通る可能性のある範囲", "予報進路", "これまでの進路"], "open": "インタラクティブ版を開く", "slider": "今からの時間", "unit": "時間", "states": ["いま中心は海の上で、南港から約 {km} km。", "1 日後、中心はこの小さな円のどこかにあり、南港から約 {km} km。", "2 日後には円が 2 倍になり、中心は南港から約 {km} km。先になるほど不確かなので、円が大きくなります。", "3 日後には南港が円の中に入りますが、中心線は東側を通ります。直撃もかすめるだけもありえます。"]},
       steps: {
         label: "説明図ができるまで",
         rows: [

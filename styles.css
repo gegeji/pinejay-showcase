@@ -459,3 +459,25 @@ h1 { white-space: pre-line; text-wrap: pretty; }
   .home-page .dg-label.l5 > span:last-child::before,
   .home-page .dg-label.l4r > span:last-child::before { content: "↑ "; }
 }
+
+/* Diagrams page: typhoon track image and its interactive sheet */
+.widget-img { height: auto; display: flex; flex-direction: column; background: #0f2740; }
+.widget-img svg { position: static; display: block; width: 100%; height: auto; }
+.ty-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 10px 12px 0; }
+.ty-head b { font-size: 13px; line-height: 18px; color: #f2f3f5; }
+.ty-head span { font-size: 11px; line-height: 14px; color: #8fa3b8; white-space: nowrap; }
+.ty-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 8px 12px 10px; font-size: 11px; line-height: 14px; color: #c9d3df; }
+.ty-legend > span { display: inline-flex; align-items: center; gap: 5px; }
+.ty-legend i { width: 14px; flex-shrink: 0; }
+.ty-legend .k0 { height: 9px; border-radius: 2px; background: rgba(242, 193, 78, 0.16); border: 1px solid rgba(242, 193, 78, 0.55); }
+.ty-legend .k1 { border-top: 2px dashed #f2c14e; }
+.ty-legend .k2 { height: 2px; background: #ff8a65; }
+.ty-pic svg { display: block; width: 100%; height: auto; border-radius: 10px; }
+.sheet .ty-row { display: flex; justify-content: space-between; }
+.sheet .ty-row b { color: #fff; }
+.sheet .ty-ticks { display: flex; justify-content: space-between; font-size: 11px; color: #8fa3b8; }
+.sheet input[type="range"] { accent-color: #f2c14e; }
+.sheet .state { padding: 12px 14px; border-radius: 10px; background: #22344f; font-size: 14px; line-height: 22px; min-height: 68px; color: #e6edf5; }
+/* Weather card: an icon before each day / night label */
+.dp-periods > span { display: inline-flex; align-items: center; gap: 3px; }
+.dp-periods .wx { display: inline-flex; flex-shrink: 0; }

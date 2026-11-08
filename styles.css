@@ -324,3 +324,97 @@ main.stacked { flex-direction: column; gap: 44px; }
   .wi-entry .who { width: 72px; }
   .stmt .w { width: 90px; }
 }
+
+/* Home: first screen, five features, how it works */
+main.home-page { gap: 80px; }
+.hero { display: flex; align-items: flex-start; gap: 48px; }
+.hero-text { width: 560px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; padding-top: 16px; }
+.hero-text h1 { font-size: 52px; line-height: 60px; }
+.hero-text p { max-width: 460px; margin: 0; font-size: 17px; line-height: 28px; color: var(--body); }
+.hero-text p.aside { font-size: 15px; line-height: 25px; color: var(--muted); }
+.hero-phone { width: 400px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; }
+.hero-phone .tg { width: 100%; height: 760px; }
+.hero-phone .tg-msgs { gap: 8px; padding: 12px 14px; }
+main.home-page { padding-top: 40px; }
+.home-tl { display: flex; gap: 6px; }
+.tl-pt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding-top: 8px; border-top: 2px solid var(--line); text-align: left; color: var(--muted); }
+.tl-pt .d { font-family: var(--mono); font-size: 12px; line-height: 16px; }
+.tl-pt .t { font-size: 13px; line-height: 18px; }
+.tl-pt:hover { color: var(--ink); }
+.tl-pt.on { border-top-color: var(--ink); color: var(--body); }
+.tl-pt.now { color: var(--ink); }
+.tl-pt.now .t { font-weight: 600; }
+.msg-by { font-size: 13px; font-weight: 600; line-height: 18px; }
+.by-journal { color: #e8b44a; }
+.by-review { color: #b9a3f0; }
+.by-weather { color: #7cc0e8; }
+.msg-text b { color: var(--tg-strong); font-weight: 600; }
+.features, .how { max-width: 1088px; }
+.features { display: flex; flex-direction: column; gap: 28px; }
+.features h2, .how h2 { margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.01em; line-height: 40px; }
+.feat-list { display: flex; flex-direction: column; border-top: 1px solid var(--ink); }
+.feat { display: flex; align-items: flex-start; gap: 32px; padding: 24px 0; border-bottom: 1px solid var(--line); color: var(--ink); }
+.feat:hover { text-decoration: none; background: #fafafa; }
+.feat-name { width: 180px; flex-shrink: 0; font-size: 22px; font-weight: 600; line-height: 30px; }
+.feat-desc { flex: 1; min-width: 0; padding-top: 3px; font-size: 17px; line-height: 26px; }
+.feat-go { width: 120px; flex-shrink: 0; padding-top: 5px; text-align: right; font-size: 15px; line-height: 20px; color: var(--link); }
+.feat:hover .feat-go { text-decoration: underline; }
+.how { display: flex; gap: 64px; padding-top: 56px; border-top: 1px solid var(--line); }
+.how h2 { width: 300px; flex-shrink: 0; }
+.how-body { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.how-body p { margin: 0; font-size: 15px; line-height: 24px; color: var(--body); }
+.home-page .dg-scroll { margin-top: -40px; }
+
+/* Weather digest card inside a message */
+.digest { width: 318px; border-radius: 10px; overflow: hidden; background: #fff; color: #18181b; }
+.digest-head { padding: 10px 12px 8px; background: #f0f1f3; }
+.digest-date { font-size: 15px; font-weight: 700; line-height: 20px; }
+.digest-hours { font-size: 11px; line-height: 15px; color: #3f3f46; }
+.digest-place { display: flex; gap: 8px; padding: 9px 12px; border-bottom: 1px solid #e7e9ec; }
+.digest-place:last-child { border-bottom: 0; }
+.dp-facts { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.dp-name { font-size: 15px; font-weight: 700; line-height: 20px; }
+.dp-line { font-size: 13px; font-weight: 700; line-height: 17px; }
+.dp-detail { font-size: 11px; line-height: 15px; color: #3f3f46; }
+.dp-periods { width: 74px; flex-shrink: 0; display: flex; flex-direction: column; gap: 1px; font-size: 11px; line-height: 14px; color: #3f3f46; }
+.dp-periods b { font-size: 14px; line-height: 17px; color: #18181b; }
+.row .time.muted { color: var(--faint); }
+
+@media (max-width: 1100px) {
+  .hero { flex-wrap: wrap; }
+  .hero-text { width: 100%; padding-top: 0; }
+  .how { flex-direction: column; gap: 20px; padding-top: 40px; }
+  .how h2 { width: auto; }
+  .home-page .dg-scroll { margin-top: 0; }
+}
+@media (max-width: 760px) {
+  main.home-page { gap: 48px; }
+  .hero-text h1 { font-size: 34px; line-height: 40px; }
+  .hero-phone { width: 100%; }
+  .hero-phone .tg { height: 640px; }
+  .feat { flex-wrap: wrap; gap: 6px 12px; padding: 16px 0; }
+  .feat-name { width: auto; flex: 1; font-size: 18px; line-height: 24px; }
+  .feat-go { width: auto; padding-top: 2px; }
+  .feat-desc { flex-basis: 100%; order: 3; padding-top: 0; font-size: 15px; line-height: 23px; color: var(--body); }
+  .features h2, .how h2 { font-size: 26px; line-height: 32px; }
+  .digest { width: 100%; }
+}
+
+/* Narrow screens: the diagram becomes one column, top to bottom */
+@media (max-width: 760px) {
+  .home-page .dg-scroll { overflow: visible; }
+  .home-page .dg { width: auto; height: auto; display: flex; flex-direction: column; }
+  .home-page .dg > svg, .home-page .dg-box.records, .home-page .dg-label.lk { display: none; }
+  .home-page .dg-box, .home-page .dg-group { position: static; width: auto; height: auto; }
+  .home-page .dg-box.you { order: 1; }
+  .home-page .dg-label.l1 { order: 2; }
+  .home-page .dg-label.l4 { order: 3; }
+  .home-page .dg-box.host { order: 4; }
+  .home-page .dg-label.l2 { order: 5; }
+  .home-page .dg-group { order: 6; }
+  .home-page .dg-label.l3 { order: 7; }
+  .home-page .dg-box.model { order: 8; }
+  .home-page .dg-label { position: static; width: auto; flex-direction: row; justify-content: flex-start; gap: 6px; margin-left: 24px; padding: 8px 0 8px 14px; border-left: 1px solid #7a8ba3; text-align: left; }
+  .home-page .dg-label.l1 { padding-bottom: 2px; }
+  .home-page .dg-label.l4 { padding-top: 2px; }
+}

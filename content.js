@@ -6,33 +6,189 @@ window.CONTENT = {
   en: {
     htmlLang: 'en',
     ui: {
-      tagline: 'A self-hosted agent, used mostly through Telegram',
+      tagline: "A personal assistant, used mostly through Telegram",
       fictional: 'All data on this site is fictional.',
-      nav: { whats: "What's Pinejay", course: 'Course', weather: 'Weather', chronicle: 'Chronicle', review: 'Review', widgets: 'Widgets', built: "How it's built" },
+      nav: {"home": "Home", "chronicle": "Journal", "review": "Review", "widgets": "Interactive diagrams", "course": "Course", "weather": "Weather", "built": "How it's built"},
       replay: 'Replay',
       pause: 'Pause',
       play: 'Play',
       step: (n, t) => `Step ${n} of ${t}`,
       close: 'Close',
     },
-    whats: {
-      title: "What's Pinejay",
-      body: [
-        ['Pinejay is a self-hosted agent built on ', { text: 'NanoClaw', href: NANOCLAW }, '. It runs all the time on a server, and I talk to it mostly in a Telegram group where each topic has one purpose: a course, the weather, a journal.'],
-        'Each topic has its own agent, and each agent runs in its own container. An agent can read only its own files. The API keys for Claude and Codex stay on the host, and the containers never see them.',
+    home: {
+      "title": "A personal assistant built around me",
+      "body": [
+        "Pinejay is a personal assistant I built. I mostly chat with it in Telegram: I jot down what happened today, ask it questions and have it remind me of things.",
+        "I tell it about my day and it keeps a journal it can search months later. In the evening it lists what I said I would do but haven’t. In the morning it tells me what to watch for in today’s weather."
       ],
-      diagram: {
-        you: ['Telegram, web, terminal', 'You', 'One topic per purpose'],
-        host: ['Always on, on a server', 'Host', 'Passes messages on and runs schedules'],
-        records: ['Kept by Host', 'Records', 'Chronicle, course plans, reminders'],
-        model: ['Claude or Codex', 'Model', 'Writes the replies'],
-        group: 'One container per agent',
-        container: 'Container',
-        agents: ['Course agent', 'Weather agent', 'Chronicle agent'],
-        agentDesc: 'Its own files and notes',
-        groupNote: "An agent cannot see another agent's files.",
-        arrows: { message: 'message', toAgent: "to that topic's agent", asks: 'asks the model', keyNote: 'API key stays on the host', reply: 'reply', keeps: 'keeps' },
+      "aside": "It isn’t another coding agent, and it doesn’t reimplement an agent’s core. Low-level work such as context caching and context handling changes fast, and each framework has its own ecosystem; one person can hardly keep up. So Pinejay uses the mature Claude and Codex SDKs and builds an abstract interface on top of them. I spend most of my time on the assistant features I want.",
+      "chat": {
+        "avatar": "P",
+        "name": "Pinejay",
+        "sub": "Thursday"
       },
+      "by": {
+        "journal": "Journal",
+        "review": "Review",
+        "weather": "Weather"
+      },
+      "keys": [
+        "Remind me",
+        "No thanks"
+      ],
+      "keyReplies": [
+        "OK, I’ll remind you at the end of March.",
+        "OK, no reminder."
+      ],
+      "script": [
+        {
+          "from": "me",
+          "time": "12:40",
+          "text": [
+            "Back in Seabright today. Grilled fish by the pier. I want to come again when the cherry blossoms are out."
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "journal",
+          "time": "12:41",
+          "text": [
+            "Noted. Your last visit was Sep 27, and you said the same then. Remind you to book the ferry at the end of March?"
+          ],
+          "keyboard": "remind"
+        },
+        {
+          "from": "bot",
+          "by": "review",
+          "time": "21:00",
+          "text": [
+            "On Monday you said you’d send section 3 to your advisor. It hasn’t gone out yet. Remind you at 9 tomorrow?"
+          ]
+        },
+        {
+          "from": "me",
+          "time": "21:02",
+          "text": [
+            "Make it 10, I have a group meeting."
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "review",
+          "time": "21:02",
+          "text": [
+            "OK, I’ll remind you at 10 tomorrow to send section 3."
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "weather",
+          "time": "Next day 07:00",
+          "text": [
+            "6° colder than yesterday, wear a jacket."
+          ]
+        }
+      ],
+      "timeline": [
+        [
+          0,
+          "12:40",
+          "Jot it down"
+        ],
+        [
+          1,
+          "12:41",
+          "It recalls the last visit"
+        ],
+        [
+          2,
+          "21:00",
+          "Evening review"
+        ],
+        [
+          5,
+          "07:00",
+          "Morning weather"
+        ]
+      ],
+      "featuresTitle": "Five things it does",
+      "demo": "Demo",
+      "features": [
+        [
+          "chronicle",
+          "Journal",
+          "Whatever you mention in chat goes into the journal. When it tidies up, it links places, plans and trips by date."
+        ],
+        [
+          "review",
+          "Review",
+          "Every evening it rereads all of the day’s chats and tells you what you said you’d do but haven’t."
+        ],
+        [
+          "widgets",
+          "Interactive diagrams",
+          "When a question is easier to explain with a picture, it draws an interactive diagram right in the answer."
+        ],
+        [
+          "course",
+          "Course",
+          "It builds a course from material you provide and adjusts the pace and difficulty as you learn."
+        ],
+        [
+          "weather",
+          "Weather",
+          "A morning report each day on the weather worth watching: a cold snap, rain or bad air."
+        ]
+      ],
+      "howTitle": "How it works",
+      "how": [
+        [
+          "Pinejay is built on the open-source project ",
+          {
+            "text": "NanoClaw",
+            "href": "https://github.com/qwibitai/nanoclaw"
+          },
+          " and runs on my own server."
+        ],
+        "I talk to Pinejay mostly in a Telegram group. Each topic in the group is handled by its own AI assistant, and each assistant runs in its own sealed-off space (Docker or Apple Container). The keys for Claude and Codex stay on the server; assistants reach them through a bridge the host provides.",
+        "Why not let it run on the whole computer? The assistants run commands and edit files on their own, with wide access. In a sealed-off space, an assistant that makes a mistake, or is misled by malicious text on a web page, can at most break its own space, and the other assistants are unaffected. The cost is that they can’t freely use the computer’s apps and files; the host opens up each thing they need, one at a time."
+      ],
+      "diagram": {
+        "you": [
+          "",
+          "You",
+          "Telegram, WeChat, web"
+        ],
+        "host": [
+          "Always on, on a server",
+          "Host",
+          "Passes messages on, keeps the records, publishes diagrams as web pages"
+        ],
+        "records": [
+          "Kept by the host",
+          "Records",
+          "Journal, course plans, reminders, in a database"
+        ],
+        "model": [
+          "Claude or Codex",
+          "Model",
+          "Understands what you say, writes the reply"
+        ],
+        "group": "Each assistant works in its own sealed-off space",
+        "agents": [
+          "Course assistant",
+          "Weather assistant",
+          "Journal assistant"
+        ],
+        "agentDesc": "Only its own files and notes",
+        "arrows": {
+          "message": "Send a message",
+          "toAgent": "To that topic’s assistant",
+          "asks": "Calls the model",
+          "reply": "Reply, sometimes with a diagram",
+          "keeps": "Save"
+        }
+      }
     },
     course: {
       title: 'A course made to fit you',
@@ -70,31 +226,114 @@ window.CONTENT = {
       },
     },
     weather: {
-      title: 'Only the weather updates that concern you',
-      body: [
-        'Every morning at 7 it sends a map of the district and one line on what changed most since yesterday.',
-        'During the day it sends a message only when rain or heat overlaps with something on your calendar.',
+      "title": "Only what’s worth knowing about today’s weather",
+      "body": [
+        "Every morning it sends one card for the places you follow. For each place it writes at most two things to watch for today: a cold snap, heat, rain, bad air, strong sun, wind or fog. A quiet place gets only its icons and temperatures.",
+        "During the day it writes again only when rain is coming that the morning card didn’t mention, or when an official warning for your place is issued, raised or lifted."
       ],
-      chat: { avatar: 'W', name: 'Weather', sub: 'Every morning at 7' },
-      keys: { hourly: 'Hourly forecast', move: 'Move ride to tomorrow' },
-      map: { title: 'Northbank', places: ['North Hill', 'East Lake', 'Northbank', 'Riverside', 'South Port'] },
-      script: [
-        { from: 'bot', time: '07:00', map: true, text: ['6° colder than yesterday, north wind force 4. Take a coat this morning.', 'Showers after 8 pm; dry for most of the day.'] },
-        { from: 'bot', time: '13:52', text: ['Rain moved earlier: thunderstorms near the riverside path around 4:30 pm, 70% likely. Your calendar has a ride from 3 to 6 pm.'], keyboard: 'alert' },
+      "chat": {
+        "avatar": "W",
+        "name": "Weather",
+        "sub": "Every morning at 7"
+      },
+      "card": {
+        "date": "11/21",
+        "hours": "Day 8:00 to 18:00　Night 18:00 to 8:00 next day",
+        "places": [
+          {
+            "name": "Northbank",
+            "line": "6° colder than yesterday, wear a jacket this morning",
+            "detail": "High 14° today, 20° yesterday",
+            "day": [
+              "Day cloudy",
+              "9~14°"
+            ],
+            "night": [
+              "Night cloudy",
+              "6~9°"
+            ]
+          },
+          {
+            "name": "East Lake",
+            "line": "Rain likely 14:00 to 20:00, take an umbrella",
+            "detail": "About 12 mm more today, chance up to 80%",
+            "day": [
+              "Day rain",
+              "11~15°"
+            ],
+            "night": [
+              "Night rain",
+              "9~11°"
+            ]
+          },
+          {
+            "name": "South Port",
+            "air": "Good, today up to AQI 31",
+            "day": [
+              "Day sunny",
+              "13~19°"
+            ],
+            "night": [
+              "Night clear",
+              "10~13°"
+            ]
+          }
+        ]
+      },
+      "script": [
+        {
+          "from": "bot",
+          "time": "07:00",
+          "card": true,
+          "text": [
+            [
+              {
+                "b": "Northbank"
+              },
+              ": 6° colder than yesterday, wear a jacket this morning"
+            ],
+            [
+              {
+                "b": "East Lake"
+              },
+              ": Rain likely 14:00 to 20:00, take an umbrella"
+            ]
+          ]
+        },
+        {
+          "from": "bot",
+          "time": "13:52",
+          "text": [
+            [
+              {
+                "b": "Riverside"
+              },
+              ": rain forecast 16:00 to 18:00"
+            ],
+            "About 6 mm in this period, chance up to 70%."
+          ]
+        }
       ],
-      branches: {
-        hourly: { from: 'bot', time: '13:53', text: ['Dry until 4 pm, then the storm passes within the hour.'], chart: 'storm' },
-        move: { from: 'bot', time: '13:53', text: ['Moved your ride to tomorrow, 3 to 6 pm. Tomorrow looks dry, 10% at most.'] },
-      },
-      chart: { title: 'Chance of rain this afternoon', left: '1 pm', mid: 'storm, about 4:30', right: '8 pm' },
-      rules: {
-        label: 'When it sends a message',
-        rows: [
-          ['07:00', 'Morning report', 'Once a day. The first line is what changed most since yesterday.'],
-          ['13:52', 'Alert', 'Rain above 60% within three hours of an outdoor plan on your calendar.'],
-          ['—', 'No message', 'If the temperature changes by less than 2° and no rain is expected, nothing is sent.'],
-        ],
-      },
+      "rules": {
+        "label": "When it sends a message",
+        "rows": [
+          [
+            "07:00",
+            "Morning card",
+            "Once a day. At most two things to watch for at each place. It reads your recent messages in the topic and skips what it already told you."
+          ],
+          [
+            "13:52",
+            "Rain reminder",
+            "Rain soon that the morning card didn’t mention: at least 2 mm in an hour and 60% likely. Silent from 23:00 until the next card."
+          ],
+          [
+            "—",
+            "Official warning",
+            "When a warning for your place is issued, raised or lifted. Each change is sent once."
+          ]
+        ]
+      }
     },
     chronicle: {
       title: 'Moments you would otherwise forget',
@@ -214,33 +453,189 @@ window.CONTENT = {
   'zh-CN': {
     htmlLang: 'zh-CN',
     ui: {
-      tagline: '自托管的 agent，主要在 Telegram 里使用',
+      tagline: "Telegram 里的私人助手",
       fictional: '本站数据均为虚构。',
-      nav: { whats: 'Pinejay 是什么', course: '课程', weather: '天气', chronicle: '问史库', review: '回顾', widgets: 'Widget', built: '怎么做出来的' },
+      nav: {"home": "首页", "chronicle": "日记", "review": "回顾", "widgets": "交互式说明图", "course": "课程", "weather": "天气", "built": "开发方式"},
       replay: '从头播放',
       pause: '暂停',
       play: '继续',
       step: (n, t) => `第 ${n} 步，共 ${t} 步`,
       close: '关闭',
     },
-    whats: {
-      title: 'Pinejay 是什么',
-      body: [
-        ['Pinejay 是基于 ', { text: 'NanoClaw', href: NANOCLAW }, ' 的自托管 agent。它一直运行在服务器上，我主要在一个 Telegram 群里和它对话，群里每个话题只做一件事：一门课、天气、日记。'],
-        '每个话题有自己的 agent，每个 agent 运行在自己的容器里，只能读自己的文件。Claude 和 Codex 的 API 密钥留在主机上，容器看不到。',
+    home: {
+      "title": "高度定制化的私人助手",
+      "body": [
+        "Pinejay 是我自己做的私人助手。我主要在 Telegram 里和它聊天：随手记一笔当天的事，问它问题，让它提醒我。",
+        "我把每天的事随手告诉它，它记进日记，几个月后还能帮我找回来。晚上它列出我这一天说了但还没做的事。早上它告诉我今天的天气要注意什么。"
       ],
-      diagram: {
-        you: ['Telegram、网页、终端', '你', '一个话题一件事'],
-        host: ['在服务器上一直运行', '主机', '转发消息，执行定时任务'],
-        records: ['由主机保存', '记录', '问史库、课程计划、提醒'],
-        model: ['Claude 或 Codex', '模型', '写出回复'],
-        group: '每个 agent 一个容器',
-        container: '容器',
-        agents: ['课程 agent', '天气 agent', '问史库 agent'],
-        agentDesc: '只有自己的文件和笔记',
-        groupNote: 'agent 看不到其他 agent 的文件。',
-        arrows: { message: '消息', toAgent: '交给该话题的 agent', asks: '询问模型', keyNote: 'API 密钥留在主机上', reply: '回复', keeps: '保存' },
+      "aside": "它不是又一个编程智能体，也不自己重写智能体的内核。上下文缓存、上下文操作这类底层实现变化很快，每个框架有各自的生态，一个人很难持续跟进。所以 Pinejay 使用成熟的 Claude SDK 和 Codex SDK，在它们之上实现一层抽象接口。我把时间主要花在我想要的私人助手功能上。",
+      "chat": {
+        "avatar": "P",
+        "name": "Pinejay",
+        "sub": "星期四"
       },
+      "by": {
+        "journal": "日记",
+        "review": "回顾",
+        "weather": "天气"
+      },
+      "keys": [
+        "好，提醒我",
+        "不用"
+      ],
+      "keyReplies": [
+        "好，三月底提醒你订船票。",
+        "好，不提醒了。"
+      ],
+      "script": [
+        {
+          "from": "me",
+          "time": "12:40",
+          "text": [
+            "今天又去了海明镇，在码头边吃了烤鱼。想四月樱花开的时候再来一次。"
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "journal",
+          "time": "12:41",
+          "text": [
+            "记下了。你上次来海明镇是 9 月 27 日，那次也说过想再来。三月底提醒你订船票？"
+          ],
+          "keyboard": "remind"
+        },
+        {
+          "from": "bot",
+          "by": "review",
+          "time": "21:00",
+          "text": [
+            "你周一说要把论文第 3 节发给导师，到今天还没发。明早 9 点提醒你？"
+          ]
+        },
+        {
+          "from": "me",
+          "time": "21:02",
+          "text": [
+            "改到 10 点吧，早上有组会。"
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "review",
+          "time": "21:02",
+          "text": [
+            "好，明早 10 点提醒你发第 3 节。"
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "weather",
+          "time": "第二天 07:00",
+          "text": [
+            "比昨天冷 6°，出门加件外套。"
+          ]
+        }
+      ],
+      "timeline": [
+        [
+          0,
+          "12:40",
+          "记一笔"
+        ],
+        [
+          1,
+          "12:41",
+          "它接上旧事"
+        ],
+        [
+          2,
+          "21:00",
+          "晚上回顾"
+        ],
+        [
+          5,
+          "07:00",
+          "早上天气"
+        ]
+      ],
+      "featuresTitle": "五件它能做的“特别”的事",
+      "demo": "演示",
+      "features": [
+        [
+          "chronicle",
+          "日记",
+          "在聊天里随手说的事，它记进日记，整理的时候把地方、计划和经历按时间连起来。"
+        ],
+        [
+          "review",
+          "回顾",
+          "每晚它回看一遍当天所有对话，告诉你哪些事说了还没做。"
+        ],
+        [
+          "widgets",
+          "交互式说明图",
+          "当问题需要图来解释时，它在回答里直接画一张能交互操作的图示辅助讲解。"
+        ],
+        [
+          "course",
+          "课程",
+          "用自己提供的材料创建定制化的课程，并可以按学习的情况动态调整快慢和难度。"
+        ],
+        [
+          "weather",
+          "天气",
+          "每天推送一条早报，提醒你今天值得注意的天气情况：降温、下雨或者空气差。"
+        ]
+      ],
+      "howTitle": "技术原理",
+      "how": [
+        [
+          "Pinejay 基于开源项目 ",
+          {
+            "text": "NanoClaw",
+            "href": "https://github.com/qwibitai/nanoclaw"
+          },
+          " 开发，运行在我自己的服务器上。"
+        ],
+        "Pinejay 主要通过 Telegram 群进行交互。Telegram 群里每个话题由一个单独的 AI 助手负责，每个助手在自己的隔离环境（Docker 或者 Apple Container）里运行。调用 Claude 和 Codex 的密钥只留在服务器上，通过主机提供的网桥转接访问。",
+        "为什么不让它直接在整台电脑上运行？这些助手能够自己执行命令、修改文件，拥有很大的访问权限。放在隔离环境里，一个助手即使出错，或者被网页上的恶意文字误导，它最多弄坏自己的环境，也不会影响其他助手。代价是它们不能随手使用电脑上的软件和文件，需要什么由主机一项项开放。"
+      ],
+      "diagram": {
+        "you": [
+          "",
+          "你",
+          "Telegram、微信、网页"
+        ],
+        "host": [
+          "一直运行在服务器上",
+          "主机",
+          "传递消息，保存记录，把说明图发布成网页"
+        ],
+        "records": [
+          "由主机保存",
+          "记录",
+          "日记、课程计划、提醒，存在数据库里"
+        ],
+        "model": [
+          "Claude 或 Codex",
+          "模型",
+          "理解你的话，写出回复"
+        ],
+        "group": "每个智能体在自己的隔离环境里工作",
+        "agents": [
+          "课程智能体",
+          "天气智能体",
+          "日记智能体"
+        ],
+        "agentDesc": "只有自己的文件和笔记",
+        "arrows": {
+          "message": "发消息",
+          "toAgent": "交给该话题的智能体",
+          "asks": "调用模型",
+          "reply": "回复，可带说明图",
+          "keeps": "保存"
+        }
+      }
     },
     course: {
       title: '为你量身定做的课',
@@ -278,28 +673,114 @@ window.CONTENT = {
       },
     },
     weather: {
-      title: '只说和你有关的天气更新',
-      body: ['每天早上 7 点，它发一张本区地图，再用一句话说明和昨天相比变化最大的情况。', '白天只有在下雨或高温和你日程里的安排撞上时，才发消息。'],
-      chat: { avatar: '晴', name: '天气提醒', sub: '每天早上 7 点' },
-      keys: { hourly: '看逐时预报', move: '骑车改到明天' },
-      map: { title: '江北区周边', places: ['北山', '东湖', '江北区', '江边', '南港'] },
-      script: [
-        { from: 'bot', time: '07:00', map: true, text: ['比昨天冷 6 度，北风 4 级。早上出门加件外套。', '晚上 8 点后有阵雨，白天基本不下。'] },
-        { from: 'bot', time: '13:52', text: ['雨提前了：江边绿道 16:30 前后有雷阵雨，概率 70%。你日程里 15:00 到 18:00 写着骑车。'], keyboard: 'alert' },
+      "title": "只说今天值得知道的天气",
+      "body": [
+        "每天早上，它为你关注的地点发一张早报。每个地点最多写两件今天要注意的事：降温、高温、下雨、空气差、紫外线强、大风或雾。没什么要注意的地点只留图标和气温。",
+        "白天只在两种情况下再发：快下雨了而早报没说过，或者你所在地点的官方预警发布、升级或解除。"
       ],
-      branches: {
-        hourly: { from: 'bot', time: '13:53', text: ['16 点前不下，之后雷雨一小时内过去。'], chart: 'storm' },
-        move: { from: 'bot', time: '13:53', text: ['已把骑车改到明天 15:00 到 18:00。明天基本不下，最高 10%。'] },
+      "chat": {
+        "avatar": "晴",
+        "name": "天气",
+        "sub": "每天早上 7 点"
       },
-      chart: { title: '今天下午逐时降水概率', left: '13 时', mid: '雷雨，约 16:30', right: '20 时' },
-      rules: {
-        label: '什么时候发消息',
-        rows: [
-          ['07:00', '早报', '每天一次。第一句是和昨天相比变化最大的情况。'],
-          ['13:52', '提醒', '日程里有户外安排，且前后三小时内降水概率超过 60%。'],
-          ['—', '不发', '气温变化不到 2 度、又没有雨，就什么都不发。'],
-        ],
+      "card": {
+        "date": "11/21",
+        "hours": "日间 08 至 18 时　夜间 18 至次日 08 时",
+        "places": [
+          {
+            "name": "江北区",
+            "line": "比昨天冷 6°，早上出门加件外套",
+            "detail": "今天最高 14°，昨天最高 20°",
+            "day": [
+              "日间 阴",
+              "9~14°"
+            ],
+            "night": [
+              "夜间 阴",
+              "6~9°"
+            ]
+          },
+          {
+            "name": "东湖",
+            "line": "14 时至 20 时可能下雨，记得带伞",
+            "detail": "今天还有约 12 mm，概率最高 80%",
+            "day": [
+              "日间 雨",
+              "11~15°"
+            ],
+            "night": [
+              "夜间 雨",
+              "9~11°"
+            ]
+          },
+          {
+            "name": "南港",
+            "air": "优，今天最高 AQI 31",
+            "day": [
+              "日间 晴",
+              "13~19°"
+            ],
+            "night": [
+              "夜间 晴",
+              "10~13°"
+            ]
+          }
+        ]
       },
+      "script": [
+        {
+          "from": "bot",
+          "time": "07:00",
+          "card": true,
+          "text": [
+            [
+              {
+                "b": "江北区"
+              },
+              "：比昨天冷 6°，早上出门加件外套"
+            ],
+            [
+              {
+                "b": "东湖"
+              },
+              "：14 时至 20 时可能下雨，记得带伞"
+            ]
+          ]
+        },
+        {
+          "from": "bot",
+          "time": "13:52",
+          "text": [
+            [
+              {
+                "b": "江边"
+              },
+              "：预报 16 时至 18 时可能下雨"
+            ],
+            "这段时间约 6 mm，概率最高 70%。"
+          ]
+        }
+      ],
+      "rules": {
+        "label": "什么时候发消息",
+        "rows": [
+          [
+            "07:00",
+            "早报",
+            "每天一次。每个地点最多写两件要注意的事。它会参考你最近在话题里说的话，说过的不再重复。"
+          ],
+          [
+            "13:52",
+            "下雨提醒",
+            "早报没说过、马上要来的雨：一小时雨量至少 2 mm，概率至少 60%。23 时到第二天早报前不发。"
+          ],
+          [
+            "—",
+            "官方预警",
+            "你所在地点的预警发布、升级或解除时发，每次变化只发一次。"
+          ]
+        ]
+      }
     },
     chronicle: {
       title: '找回你可能忘掉的那个瞬间',
@@ -402,33 +883,189 @@ window.CONTENT = {
   'zh-HK': {
     htmlLang: 'zh-HK',
     ui: {
-      tagline: '自行託管的 agent，主要透過 Telegram 使用',
+      tagline: "Telegram 裡的私人助理",
       fictional: '本網站的資料全屬虛構。',
-      nav: { whats: 'Pinejay 是甚麼', course: '課程', weather: '天氣', chronicle: '問史庫', review: '回顧', widgets: 'Widget', built: '製作方式' },
+      nav: {"home": "首頁", "chronicle": "日記", "review": "回顧", "widgets": "互動說明圖", "course": "課程", "weather": "天氣", "built": "開發方式"},
       replay: '從頭播放',
       pause: '暫停',
       play: '繼續',
       step: (n, t) => `第 ${n} 步，共 ${t} 步`,
       close: '關閉',
     },
-    whats: {
-      title: 'Pinejay 是甚麼',
-      body: [
-        ['Pinejay 是以 ', { text: 'NanoClaw', href: NANOCLAW }, ' 為基礎的自行託管 agent。它在伺服器上持續運行，我主要在一個 Telegram 群組與它對話，群組內每個話題只負責一件事：一門課程、天氣或日記。'],
-        '每個話題都有自己的 agent，每個 agent 在自己的容器內運行，只能讀取自己的檔案。Claude 和 Codex 的 API 金鑰保存在主機上，容器無法看到。',
+    home: {
+      "title": "度身訂造的私人助理",
+      "body": [
+        "Pinejay 是我自己做的私人助理。我主要在 Telegram 裡和它聊天：隨手記下當天的事，問它問題，讓它提醒我。",
+        "我把每天的事隨手告訴它，它記進日記，幾個月後還能幫我找回來。晚上它列出我這一天說了但還沒做的事。早上它告訴我今天的天氣要注意甚麼。"
       ],
-      diagram: {
-        you: ['Telegram、網頁、終端機', '你', '一個話題一件事'],
-        host: ['在伺服器上持續運行', '主機', '轉發訊息並執行排程'],
-        records: ['由主機保存', '紀錄', '問史庫、課程計劃、提醒'],
-        model: ['Claude 或 Codex', '模型', '撰寫回覆'],
-        group: '每個 agent 一個容器',
-        container: '容器',
-        agents: ['課程 agent', '天氣 agent', '問史庫 agent'],
-        agentDesc: '只有自己的檔案和筆記',
-        groupNote: 'agent 無法查看其他 agent 的檔案。',
-        arrows: { message: '訊息', toAgent: '交給該話題的 agent', asks: '向模型查詢', keyNote: 'API 金鑰保存在主機上', reply: '回覆', keeps: '保存' },
+      "aside": "它不是又一個編程智能體，也不自己重寫智能體的核心。上下文快取、上下文操作這類底層實現變化很快，每個框架都有各自的生態，一個人很難持續跟進。所以 Pinejay 使用成熟的 Claude SDK 和 Codex SDK，在它們之上實現一層抽象介面。我把時間主要花在我想要的私人助理功能上。",
+      "chat": {
+        "avatar": "P",
+        "name": "Pinejay",
+        "sub": "星期四"
       },
+      "by": {
+        "journal": "日記",
+        "review": "回顧",
+        "weather": "天氣"
+      },
+      "keys": [
+        "好，提醒我",
+        "不用"
+      ],
+      "keyReplies": [
+        "好，三月底提醒你訂船票。",
+        "好，不提醒了。"
+      ],
+      "script": [
+        {
+          "from": "me",
+          "time": "12:40",
+          "text": [
+            "今天又去了海明鎮，在碼頭邊吃了烤魚。想四月櫻花開的時候再來一次。"
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "journal",
+          "time": "12:41",
+          "text": [
+            "記下了。你上次來海明鎮是 9 月 27 日，那次也說過想再來。三月底提醒你訂船票？"
+          ],
+          "keyboard": "remind"
+        },
+        {
+          "from": "bot",
+          "by": "review",
+          "time": "21:00",
+          "text": [
+            "你星期一說要把論文第 3 節發給導師，到今天還沒發。明早 9 時提醒你？"
+          ]
+        },
+        {
+          "from": "me",
+          "time": "21:02",
+          "text": [
+            "改到 10 時吧，早上要開組會。"
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "review",
+          "time": "21:02",
+          "text": [
+            "好，明早 10 時提醒你發第 3 節。"
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "weather",
+          "time": "翌日 07:00",
+          "text": [
+            "比昨天冷 6°，出門加件外套。"
+          ]
+        }
+      ],
+      "timeline": [
+        [
+          0,
+          "12:40",
+          "記一筆"
+        ],
+        [
+          1,
+          "12:41",
+          "它接上舊事"
+        ],
+        [
+          2,
+          "21:00",
+          "晚上回顧"
+        ],
+        [
+          5,
+          "07:00",
+          "早上天氣"
+        ]
+      ],
+      "featuresTitle": "五件它能做的「特別」的事",
+      "demo": "示範",
+      "features": [
+        [
+          "chronicle",
+          "日記",
+          "在聊天裡隨手說的事，它記進日記，整理的時候把地方、計劃和經歷按時間串起來。"
+        ],
+        [
+          "review",
+          "回顧",
+          "每晚它回看一遍當天所有對話，告訴你哪些事說了還沒做。"
+        ],
+        [
+          "widgets",
+          "互動說明圖",
+          "當問題需要用圖來解釋時，它在回答裡直接畫一張可以互動操作的圖示輔助講解。"
+        ],
+        [
+          "course",
+          "課程",
+          "用自己提供的材料建立度身訂造的課程，並按學習情況調整快慢和難度。"
+        ],
+        [
+          "weather",
+          "天氣",
+          "每天推送一則早報，提醒你今天值得注意的天氣：降溫、下雨或空氣差。"
+        ]
+      ],
+      "howTitle": "技術原理",
+      "how": [
+        [
+          "Pinejay 以開源項目 ",
+          {
+            "text": "NanoClaw",
+            "href": "https://github.com/qwibitai/nanoclaw"
+          },
+          " 為基礎開發，運行在我自己的伺服器上。"
+        ],
+        "Pinejay 主要透過 Telegram 群組互動。群組裡每個話題由一個獨立的 AI 助理負責，每個助理在自己的隔離環境（Docker 或 Apple Container）裡運行。呼叫 Claude 和 Codex 的金鑰只留在伺服器上，經主機提供的網橋轉接使用。",
+        "為甚麼不讓它直接在整部電腦上運行？這些助理能自己執行指令、修改檔案，權限很大。放在隔離環境裡，一個助理即使出錯，或被網頁上的惡意文字誤導，最多弄壞自己的環境，也不會影響其他助理。代價是它們不能隨手使用電腦上的軟件和檔案，需要甚麼由主機逐項開放。"
+      ],
+      "diagram": {
+        "you": [
+          "",
+          "你",
+          "Telegram、微信、網頁"
+        ],
+        "host": [
+          "一直在伺服器上運行",
+          "主機",
+          "傳遞訊息，保存紀錄，把說明圖發布成網頁"
+        ],
+        "records": [
+          "由主機保存",
+          "紀錄",
+          "日記、課程計劃、提醒，存在資料庫裡"
+        ],
+        "model": [
+          "Claude 或 Codex",
+          "模型",
+          "理解你的話，寫出回覆"
+        ],
+        "group": "每個智能體在自己的隔離環境裡工作",
+        "agents": [
+          "課程智能體",
+          "天氣智能體",
+          "日記智能體"
+        ],
+        "agentDesc": "只有自己的檔案和筆記",
+        "arrows": {
+          "message": "發訊息",
+          "toAgent": "交給該話題的智能體",
+          "asks": "呼叫模型",
+          "reply": "回覆，可附說明圖",
+          "keeps": "保存"
+        }
+      }
     },
     course: {
       title: '為你度身訂造的課程',
@@ -466,28 +1103,114 @@ window.CONTENT = {
       },
     },
     weather: {
-      title: '只講與你有關的天氣更新',
-      body: ['每天早上 7 時，它會發送一張本區地圖，並以一句話說明與昨天相比變化最大的情況。', '日間只有在下雨或高溫與你日程中的安排重疊時，才會發送訊息。'],
-      chat: { avatar: '晴', name: '天氣提醒', sub: '每天早上 7 時' },
-      keys: { hourly: '查看每小時預報', move: '單車改到明天' },
-      map: { title: '江北區周邊', places: ['北山', '東湖', '江北區', '海濱', '南港'] },
-      script: [
-        { from: 'bot', time: '07:00', map: true, text: ['氣溫比昨天低 6 度，吹 4 級北風。早上出門請加件外套。', '晚上 8 時後有驟雨，日間大致無雨。'] },
-        { from: 'bot', time: '13:52', text: ['雨提早了：海濱單車徑約 16:30 有雷暴，概率 70%。你的日程中 15:00 至 18:00 安排了踏單車。'], keyboard: 'alert' },
+      "title": "只講今天值得知道的天氣",
+      "body": [
+        "每天早上，它為你關注的地點發一張早報。每個地點最多寫兩件今天要注意的事：降溫、高溫、下雨、空氣差、紫外線強、大風或霧。沒甚麼要注意的地點只留圖示和氣溫。",
+        "日間只在兩種情況下再發：快要下雨而早報沒說過，或你所在地點的官方警告發出、升級或解除。"
       ],
-      branches: {
-        hourly: { from: 'bot', time: '13:53', text: ['16 時前不會下雨，之後雷暴會在一小時內過去。'], chart: 'storm' },
-        move: { from: 'bot', time: '13:53', text: ['已把踏單車改到明天 15:00 至 18:00。明天大致無雨，降雨概率最高 10%。'] },
+      "chat": {
+        "avatar": "晴",
+        "name": "天氣",
+        "sub": "每天早上 7 時"
       },
-      chart: { title: '今天下午每小時降雨概率', left: '13 時', mid: '雷暴，約 16:30', right: '20 時' },
-      rules: {
-        label: '何時發送訊息',
-        rows: [
-          ['07:00', '早報', '每天一次。第一句是與昨天相比變化最大的情況。'],
-          ['13:52', '提醒', '日程中有戶外安排，而前後三小時內降雨概率超過 60%。'],
-          ['—', '不發送', '氣溫變化少於 2 度且沒有雨，就不會發送任何訊息。'],
-        ],
+      "card": {
+        "date": "11/21",
+        "hours": "日間 08 至 18 時　夜間 18 至翌日 08 時",
+        "places": [
+          {
+            "name": "江北區",
+            "line": "比昨天冷 6°，早上出門加件外套",
+            "detail": "今天最高 14°，昨天最高 20°",
+            "day": [
+              "日間 陰",
+              "9~14°"
+            ],
+            "night": [
+              "夜間 陰",
+              "6~9°"
+            ]
+          },
+          {
+            "name": "東湖",
+            "line": "14 時至 20 時可能下雨，記得帶傘",
+            "detail": "今天還有約 12 mm，概率最高 80%",
+            "day": [
+              "日間 雨",
+              "11~15°"
+            ],
+            "night": [
+              "夜間 雨",
+              "9~11°"
+            ]
+          },
+          {
+            "name": "南港",
+            "air": "良好，今天最高 AQI 31",
+            "day": [
+              "日間 晴",
+              "13~19°"
+            ],
+            "night": [
+              "夜間 晴",
+              "10~13°"
+            ]
+          }
+        ]
       },
+      "script": [
+        {
+          "from": "bot",
+          "time": "07:00",
+          "card": true,
+          "text": [
+            [
+              {
+                "b": "江北區"
+              },
+              "：比昨天冷 6°，早上出門加件外套"
+            ],
+            [
+              {
+                "b": "東湖"
+              },
+              "：14 時至 20 時可能下雨，記得帶傘"
+            ]
+          ]
+        },
+        {
+          "from": "bot",
+          "time": "13:52",
+          "text": [
+            [
+              {
+                "b": "海濱"
+              },
+              "：預報 16 時至 18 時可能下雨"
+            ],
+            "這段時間約 6 mm，概率最高 70%。"
+          ]
+        }
+      ],
+      "rules": {
+        "label": "何時發送訊息",
+        "rows": [
+          [
+            "07:00",
+            "早報",
+            "每天一次。每個地點最多寫兩件要注意的事。它會參考你最近在話題裡說的話，說過的不再重複。"
+          ],
+          [
+            "13:52",
+            "下雨提醒",
+            "早報沒說過、快要來的雨：一小時雨量至少 2 mm，概率至少 60%。23 時至翌日早報前不發。"
+          ],
+          [
+            "—",
+            "官方警告",
+            "你所在地點的警告發出、升級或解除時發送，每次變化只發一次。"
+          ]
+        ]
+      }
     },
     chronicle: {
       title: '找回你或許已忘記的那一刻',
@@ -590,33 +1313,189 @@ window.CONTENT = {
   ja: {
     htmlLang: 'ja',
     ui: {
-      tagline: 'セルフホストのエージェント。主に Telegram で使っています',
+      tagline: "Telegram で使うパーソナルアシスタント",
       fictional: 'このサイトのデータはすべて架空です。',
-      nav: { whats: 'Pinejay とは', course: 'コース', weather: '天気', chronicle: 'クロニクル', review: 'ふりかえり', widgets: 'ウィジェット', built: '作り方' },
+      nav: {"home": "ホーム", "chronicle": "日記", "review": "ふりかえり", "widgets": "操作できる図解", "course": "コース", "weather": "天気", "built": "作り方"},
       replay: '最初から',
       pause: '一時停止',
       play: '再生',
       step: (n, t) => `${t} ステップ中 ${n}`,
       close: '閉じる',
     },
-    whats: {
-      title: 'Pinejay とは',
-      body: [
-        ['Pinejay は ', { text: 'NanoClaw', href: NANOCLAW }, ' をもとにしたセルフホストのエージェントです。サーバー上で常に動いていて、主に Telegram のグループで話しかけます。グループのトピックはそれぞれ役割が一つだけです。コース、天気、日記など。'],
-        'トピックごとにエージェントがあり、各エージェントは自分のコンテナの中で動きます。読めるのは自分のファイルだけです。Claude と Codex の API キーはホストに置かれ、コンテナからは見えません。',
+    home: {
+      "title": "自分のために作り込んだアシスタント",
+      "body": [
+        "Pinejay は自分で作ったパーソナルアシスタントです。主に Telegram で話しかけています。その日のことをメモしたり、質問したり、リマインドを頼んだりします。",
+        "その日のことを話すと日記に残してくれて、何か月たっても探し出せます。夜は、その日言ったのにまだやっていないことを挙げてくれます。朝は、今日の天気で気をつけることを教えてくれます。"
       ],
-      diagram: {
-        you: ['Telegram、Web、ターミナル', 'あなた', 'トピックごとに一つの役割'],
-        host: ['サーバー上で常時稼働', 'ホスト', 'メッセージを渡し、予定された処理を実行'],
-        records: ['ホストが保管', '記録', 'クロニクル、コース計画、リマインダー'],
-        model: ['Claude または Codex', 'モデル', '返信を書く'],
-        group: 'エージェントごとに一つのコンテナ',
-        container: 'コンテナ',
-        agents: ['コースのエージェント', '天気のエージェント', 'クロニクルのエージェント'],
-        agentDesc: '自分のファイルとメモだけ',
-        groupNote: 'ほかのエージェントのファイルは見えません。',
-        arrows: { message: 'メッセージ', toAgent: 'そのトピックのエージェントへ', asks: 'モデルに聞く', keyNote: 'API キーはホストに残る', reply: '返信', keeps: '保管' },
+      "aside": "新しいコーディングエージェントではなく、エージェントの中核を自分で作り直すものでもありません。コンテキストのキャッシュや操作といった低レベルの実装は変化が速く、フレームワークごとに独自のエコシステムがあり、一人では追いきれません。そこで Pinejay は成熟した Claude SDK と Codex SDK を使い、その上に抽象化したインターフェースを作っています。時間は主に、自分が欲しいアシスタント機能に使っています。",
+      "chat": {
+        "avatar": "P",
+        "name": "Pinejay",
+        "sub": "木曜日"
       },
+      "by": {
+        "journal": "日記",
+        "review": "ふりかえり",
+        "weather": "天気"
+      },
+      "keys": [
+        "お願い",
+        "いらない"
+      ],
+      "keyReplies": [
+        "わかりました。3 月末にリマインドします。",
+        "わかりました。リマインドはしません。"
+      ],
+      "script": [
+        {
+          "from": "me",
+          "time": "12:40",
+          "text": [
+            "今日また海明町へ。桟橋のそばで焼き魚を食べた。4 月の桜の頃にもう一度来たい。"
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "journal",
+          "time": "12:41",
+          "text": [
+            "記録しました。前回の海明町は 9 月 27 日で、そのときもまた来たいと言っていました。3 月末にフェリーの予約をリマインドしますか？"
+          ],
+          "keyboard": "remind"
+        },
+        {
+          "from": "bot",
+          "by": "review",
+          "time": "21:00",
+          "text": [
+            "月曜に論文の第 3 節を指導教員に送ると言っていましたが、まだ送っていません。明日の朝 9 時にリマインドしますか？"
+          ]
+        },
+        {
+          "from": "me",
+          "time": "21:02",
+          "text": [
+            "10 時にして。朝はゼミがある。"
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "review",
+          "time": "21:02",
+          "text": [
+            "わかりました。明日 10 時に第 3 節を送るようリマインドします。"
+          ]
+        },
+        {
+          "from": "bot",
+          "by": "weather",
+          "time": "翌日 07:00",
+          "text": [
+            "昨日より 6° 寒いので、上着を一枚。"
+          ]
+        }
+      ],
+      "timeline": [
+        [
+          0,
+          "12:40",
+          "メモする"
+        ],
+        [
+          1,
+          "12:41",
+          "前の話につなげる"
+        ],
+        [
+          2,
+          "21:00",
+          "夜のふりかえり"
+        ],
+        [
+          5,
+          "07:00",
+          "朝の天気"
+        ]
+      ],
+      "featuresTitle": "ほかにはない 5 つのこと",
+      "demo": "デモ",
+      "features": [
+        [
+          "chronicle",
+          "日記",
+          "チャットで何気なく話したことを日記に残し、整理するときに場所・予定・出来事を時系列でつなげます。"
+        ],
+        [
+          "review",
+          "ふりかえり",
+          "毎晩その日の会話をすべて読み返し、言ったのにまだやっていないことを教えてくれます。"
+        ],
+        [
+          "widgets",
+          "操作できる図解",
+          "図で説明したほうがわかりやすい質問には、操作できる図を回答の中に直接描いて説明します。"
+        ],
+        [
+          "course",
+          "コース",
+          "自分で用意した資料からコースを作り、学習の進み具合に合わせて速さと難しさを調整します。"
+        ],
+        [
+          "weather",
+          "天気",
+          "毎朝の天気レポートで、今日気をつけたいこと（冷え込み、雨、空気の悪さ）を知らせます。"
+        ]
+      ],
+      "howTitle": "しくみ",
+      "how": [
+        [
+          "Pinejay はオープンソースの ",
+          {
+            "text": "NanoClaw",
+            "href": "https://github.com/qwibitai/nanoclaw"
+          },
+          " をもとに開発し、自分のサーバーで動かしています。"
+        ],
+        "Pinejay とは主に Telegram のグループでやり取りします。グループのトピックごとに専用の AI アシスタントがいて、それぞれ自分の隔離環境（Docker または Apple Container）で動きます。Claude と Codex を呼び出すキーはサーバーにだけ置き、ホストのブリッジ経由で使います。",
+        "なぜパソコン全体で動かさないのか。アシスタントは自分でコマンドを実行し、ファイルを書き換えられるので、権限が大きいからです。隔離環境の中なら、ミスをしたり、Web ページの悪意ある文章にだまされたりしても、壊れるのはそのアシスタントの環境だけで、ほかのアシスタントには影響しません。その代わり、パソコンのアプリやファイルは自由に使えず、必要なものはホストが一つずつ開放します。"
+      ],
+      "diagram": {
+        "you": [
+          "",
+          "あなた",
+          "Telegram、WeChat、Web"
+        ],
+        "host": [
+          "サーバーで常時稼働",
+          "ホスト",
+          "メッセージを渡し、記録を保存し、図解を Web ページとして公開"
+        ],
+        "records": [
+          "ホストが保管",
+          "記録",
+          "日記、コース計画、リマインダーをデータベースに保存"
+        ],
+        "model": [
+          "Claude または Codex",
+          "モデル",
+          "言葉を理解し、返信を書く"
+        ],
+        "group": "エージェントはそれぞれ自分の隔離環境で動く",
+        "agents": [
+          "コースのエージェント",
+          "天気のエージェント",
+          "日記のエージェント"
+        ],
+        "agentDesc": "自分のファイルとメモだけ",
+        "arrows": {
+          "message": "メッセージを送る",
+          "toAgent": "そのトピックのエージェントへ",
+          "asks": "モデルを呼ぶ",
+          "reply": "返信（図解つきのことも）",
+          "keeps": "保存"
+        }
+      }
     },
     course: {
       title: 'あなたに合わせて仕立てるコース',
@@ -654,28 +1533,114 @@ window.CONTENT = {
       },
     },
     weather: {
-      title: 'あなたに関係する天気情報だけ',
-      body: ['毎朝 7 時に、地域の地図と、昨日からいちばん変わった点を一文で送ります。', '日中は、雨や暑さが予定と重なるときだけメッセージを送ります。'],
-      chat: { avatar: '晴', name: '天気のお知らせ', sub: '毎朝 7 時' },
-      keys: { hourly: '時間ごとの予報', move: 'サイクリングを明日に' },
-      map: { title: '江北区周辺', places: ['北山', '東湖', '江北区', '川沿い', '南港'] },
-      script: [
-        { from: 'bot', time: '07:00', map: true, text: ['昨日より 6 度低く、北風 4。朝はコートを。', '20 時以降ににわか雨。日中はほぼ降りません。'] },
-        { from: 'bot', time: '13:52', text: ['雨が早まりました。川沿いの道で 16:30 ごろ雷雨、確率 70%。予定表では 15:00 から 18:00 にサイクリングがあります。'], keyboard: 'alert' },
+      "title": "今日の天気で知っておくべきことだけ",
+      "body": [
+        "毎朝、登録した地点の天気カードを一枚送ります。各地点で今日気をつけることを最大 2 つ：冷え込み、暑さ、雨、空気の悪さ、強い紫外線、強風、霧。気をつけることがない地点はアイコンと気温だけです。",
+        "日中に送るのは二つの場合だけです。朝のカードで触れていない雨が近いとき、そして地点の公式の警報が出た・上がった・解除されたとき。"
       ],
-      branches: {
-        hourly: { from: 'bot', time: '13:53', text: ['16 時までは降らず、その後の雷雨は 1 時間以内に抜けます。'], chart: 'storm' },
-        move: { from: 'bot', time: '13:53', text: ['サイクリングを明日の 15:00 から 18:00 に移しました。明日はほぼ晴れ、最大 10% です。'] },
+      "chat": {
+        "avatar": "晴",
+        "name": "天気",
+        "sub": "毎朝 7 時"
       },
-      chart: { title: '今日の午後の降水確率', left: '13 時', mid: '雷雨、16:30 ごろ', right: '20 時' },
-      rules: {
-        label: 'いつメッセージを送るか',
-        rows: [
-          ['07:00', '朝の予報', '一日一回。最初の一文は昨日からいちばん変わった点です。'],
-          ['13:52', 'お知らせ', '屋外の予定の前後 3 時間以内に、降水確率が 60% を超えるとき。'],
-          ['—', '送らない', '気温の変化が 2 度未満で雨の予報もなければ、何も送りません。'],
-        ],
+      "card": {
+        "date": "11/21",
+        "hours": "日中 8 時から 18 時　夜間 18 時から翌日 8 時",
+        "places": [
+          {
+            "name": "江北区",
+            "line": "昨日より 6° 寒い、朝は上着を一枚",
+            "detail": "今日の最高 14°、昨日は 20°",
+            "day": [
+              "日中 くもり",
+              "9~14°"
+            ],
+            "night": [
+              "夜間 くもり",
+              "6~9°"
+            ]
+          },
+          {
+            "name": "東湖",
+            "line": "14 時から 20 時に雨の可能性、傘を忘れずに",
+            "detail": "今日はあと約 12 mm、確率は最高 80%",
+            "day": [
+              "日中 雨",
+              "11~15°"
+            ],
+            "night": [
+              "夜間 雨",
+              "9~11°"
+            ]
+          },
+          {
+            "name": "南港",
+            "air": "良好、今日の最高 AQI 31",
+            "day": [
+              "日中 晴れ",
+              "13~19°"
+            ],
+            "night": [
+              "夜間 晴れ",
+              "10~13°"
+            ]
+          }
+        ]
       },
+      "script": [
+        {
+          "from": "bot",
+          "time": "07:00",
+          "card": true,
+          "text": [
+            [
+              {
+                "b": "江北区"
+              },
+              "：昨日より 6° 寒い、朝は上着を一枚"
+            ],
+            [
+              {
+                "b": "東湖"
+              },
+              "：14 時から 20 時に雨の可能性、傘を忘れずに"
+            ]
+          ]
+        },
+        {
+          "from": "bot",
+          "time": "13:52",
+          "text": [
+            [
+              {
+                "b": "川沿い"
+              },
+              "：16 時から 18 時に雨の予報"
+            ],
+            "この時間帯で約 6 mm、確率は最高 70%。"
+          ]
+        }
+      ],
+      "rules": {
+        "label": "いつメッセージを送るか",
+        "rows": [
+          [
+            "07:00",
+            "朝のカード",
+            "一日一回。各地点で気をつけることを最大 2 つ。トピックでの最近の発言を参考にし、伝えたことは繰り返しません。"
+          ],
+          [
+            "13:52",
+            "雨のお知らせ",
+            "朝のカードで触れていない、もうすぐ降る雨：1 時間に 2 mm 以上、確率 60% 以上。23 時から翌朝のカードまでは送りません。"
+          ],
+          [
+            "—",
+            "公式の警報",
+            "地点の警報が出た・上がった・解除されたとき。変化ごとに一度だけ送ります。"
+          ]
+        ]
+      }
     },
     chronicle: {
       title: '忘れかけた瞬間を見つけ出す',

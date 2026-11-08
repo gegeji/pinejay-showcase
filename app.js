@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const PAGES = ['whats', 'course', 'weather', 'chronicle', 'review', 'widgets', 'built'];
+  const PAGES = ['home', 'chronicle', 'review', 'widgets', 'course', 'weather', 'built'];
   const LANGS = [
     ['en', 'EN'],
     ['zh-CN', '简体'],
@@ -26,7 +26,8 @@
 
   function pickPage() {
     const p = location.hash.replace('#', '');
-    return PAGES.includes(p) ? p : 'whats';
+    // Old links to the "What's Pinejay" page open the home page.
+    return PAGES.includes(p) ? p : 'home';
   }
 
   // Small element builder: h('div', { class: 'x', onclick: fn }, child, ...)
@@ -93,13 +94,22 @@
       h('div', { class: 'chart-axis' }, h('span', {}, c.left), h('span', { class: 'mid' }, c.mid), h('span', {}, c.right)));
   }
 
-  function weatherMap(m, time) {
-    const card = h('div', { class: 'map' });
-    card.append(svg('<path d="M0 170 C 60 150, 90 190, 150 175 S 250 140, 318 160 L 318 236 L 0 236 Z" fill="#C9DCE6"/><path d="M20 40 C 80 60, 120 20, 190 50 S 280 30, 318 60" stroke="#D3D8DE" stroke-width="2" fill="none"/><path d="M0 110 C 70 100, 130 130, 210 105 S 290 120, 318 100" stroke="#D3D8DE" stroke-width="2" fill="none"/>', 318, 236));
-    card.append(h('div', { class: 'map-title' }, m.title), h('div', { class: 'map-time' }, time));
-    const pos = [[22, 56, 17], [196, 50, 19], [116, 104, 18, true], [30, 146, 18], [222, 150, 20]];
-    pos.forEach(([x, y, temp, main], i) => card.append(h('div', { class: 'pin' + (main ? ' main' : ''), style: `left:${x}px;top:${y}px` }, h('span', {}, m.places[i]), h('b', {}, `${temp}°`))));
-    return card;
+  // The morning card as the digest sends it: one row per place, the day's lines on the left, day and night on the right.
+  function digestCard(c) {
+    return h('div', { class: 'digest' },
+      h('div', { class: 'digest-head' }, h('div', { class: 'digest-date' }, c.date), h('div', { class: 'digest-hours' }, c.hours)),
+      c.places.map((p) => h('div', { class: 'digest-place' },
+        h('div', { class: 'dp-facts' },
+          h('div', { class: 'dp-name' }, p.name),
+          p.line ? h('div', { class: 'dp-line' }, p.line) : null,
+          p.detail ? h('div', { class: 'dp-detail' }, p.detail) : null,
+          p.air ? h('div', { class: 'dp-detail' }, p.air) : null),
+        h('div', { class: 'dp-periods' }, h('span', {}, p.day[0]), h('b', {}, p.day[1]), h('span', {}, p.night[0]), h('b', {}, p.night[1])))));
+  }
+
+  // A message paragraph is a string, or a list of strings and { b } bold runs.
+  function rich(p) {
+    return Array.isArray(p) ? p.map((x) => (typeof x === 'string' ? x : h('b', {}, x.b))) : p;
   }
 
   function frontImage(w) {
@@ -132,11 +142,12 @@
     let timer = null;
 
     function render(m) {
-      const wide = m.map || m.widget;
+      const wide = m.card || m.widget;
       const box = h('div', { class: 'msg' + (m.from === 'me' ? ' me' : '') + (wide ? ' wide' : '') });
+      if (m.by && opts.by) box.append(h('div', { class: 'msg-by by-' + m.by }, opts.by[m.by]));
       if (m.title) box.append(h('div', { class: 'msg-title' }, m.title));
       if (opts.extraTop) { const top = opts.extraTop(m); if (top) box.append(...[].concat(top)); }
-      (m.text || []).forEach((p) => box.append(h('p', { class: 'msg-text' }, p)));
+      (m.text || []).forEach((p) => box.append(h('p', { class: 'msg-text' }, rich(p))));
       if (opts.extra) { const x = opts.extra(m); if (x) box.append(x); }
       (m.after || []).forEach((p) => box.append(h('p', { class: 'msg-text' }, p)));
       box.append(h('div', { class: 'msg-time' }, m.time));
@@ -151,6 +162,7 @@
       const done = idx >= opts.script.length;
       primary.hidden = done;
       primary.textContent = playing ? t.ui.pause : t.ui.play;
+      if (opts.onStep) opts.onStep(idx);
     }
 
     function schedule(delay) {
@@ -169,6 +181,18 @@
       update();
       schedule(300);
     });
+
+    // Shows the script up to and including message n at once and pauses there.
+    function jumpTo(n) {
+      clearTimeout(timer);
+      msgs.replaceChildren();
+      if (opts.onReset) opts.onReset();
+      for (let i = 0; i <= n; i += 1) render(opts.script[i]);
+      idx = n + 1;
+      playing = false;
+      update();
+    }
+    if (opts.onReady) opts.onReady({ jumpTo });
 
     const api = {
       append: (m) => render(m),
@@ -265,20 +289,7 @@
       chat: w.chat,
       sun: true,
       script: w.script,
-      extraTop: (m) => (m.map ? weatherMap(w.map, m.time) : null),
-      extra: (m) => (m.chart ? chart(m.chart, w.chart) : null),
-      keyboard: (kind, api) => {
-        const used = new Set();
-        return api.keys(['hourly', 'move'].map((k) => h('button', {
-          type: 'button',
-          onclick: (e) => {
-            if (used.has(k)) return;
-            used.add(k);
-            e.currentTarget.disabled = true;
-            api.append(w.branches[k]);
-          },
-        }, w.keys[k])));
-      },
+      extraTop: (m) => (m.card ? digestCard(w.card) : null),
     });
   }
 
@@ -429,13 +440,58 @@
     return () => clearTimeout(timer);
   }
 
-  function whatsPage(main) {
-    const w = CONTENT[lang].whats;
-    const d = w.diagram;
-    main.classList.add('stacked');
-    main.append(h('section', { class: 'intro wide' }, h('h1', {}, w.title), w.body.map(para)));
+  function homePage(main) {
+    const c = CONTENT[lang].home;
+    const d = c.diagram;
+    main.classList.add('stacked', 'home-page');
 
-    const box = (cls, [cat, title, desc]) => h('div', { class: 'dg-box ' + cls }, h('div', { class: 'cat' }, cat), h('div', { class: 't' }, title), h('div', { class: 'd' }, desc));
+    // First screen: what it does in plain words, and a day of messages in the phone.
+    const phone = h('div', { class: 'hero-phone' });
+    main.append(h('section', { class: 'hero' },
+      h('div', { class: 'hero-text' }, h('h1', {}, c.title), c.body.map(para), h('p', { class: 'aside' }, c.aside)),
+      phone));
+    let chat = null;
+    const points = c.timeline.map(([at, time, label]) => h('button', {
+      type: 'button', class: 'tl-pt', onclick: () => { if (chat) chat.jumpTo(at); },
+    }, h('span', { class: 'd' }, time), h('span', { class: 't' }, label)));
+    const stop = mountChat(phone, {
+      chat: c.chat,
+      script: c.script,
+      by: c.by,
+      onReady: (ctl) => { chat = ctl; },
+      onStep: (shown) => {
+        let current = -1;
+        points.forEach((p, i) => {
+          const on = c.timeline[i][0] < shown;
+          p.classList.toggle('on', on);
+          if (on) current = i;
+        });
+        points.forEach((p, i) => p.classList.toggle('now', i === current));
+      },
+      keyboard: (kind, api) => {
+        const buttons = c.keys.map((label, i) => h('button', {
+          type: 'button',
+          onclick: () => {
+            buttons.forEach((b) => { b.disabled = true; });
+            api.append({ from: 'me', time: '12:42', text: [label] });
+            api.append({ from: 'bot', by: 'journal', time: '12:42', text: [c.keyReplies[i]] });
+          },
+        }, label));
+        return api.keys(buttons);
+      },
+    });
+    phone.append(h('div', { class: 'home-tl' }, points));
+
+    main.append(h('section', { class: 'features' },
+      h('h2', {}, c.featuresTitle),
+      h('div', { class: 'feat-list' }, c.features.map(([p, name, desc]) => h('a', { class: 'feat', href: '#' + p },
+        h('span', { class: 'feat-name' }, name),
+        h('span', { class: 'feat-desc' }, desc),
+        h('span', { class: 'feat-go' }, c.demo, h('span', { 'aria-hidden': 'true' }, ' ›')))))));
+
+    main.append(h('section', { class: 'how' }, h('h2', {}, c.howTitle), h('div', { class: 'how-body' }, c.how.map(para))));
+
+    const box = (cls, [cat, title, desc]) => h('div', { class: 'dg-box ' + cls }, cat ? h('div', { class: 'cat' }, cat) : null, h('div', { class: 't' }, title), h('div', { class: 'd' }, desc));
     const label = (cls, n, text) => h('div', { class: 'dg-label ' + cls }, n ? h('span', { class: 'n' }, n) : null, h('span', {}, text));
     const arrows = `
       <line x1="182" y1="196" x2="272" y2="196" class="a-main"/><path d="M268 191 L276 196 L268 201" class="a-main"/>
@@ -452,15 +508,13 @@
         box('model', d.model),
         h('div', { class: 'dg-group' },
           h('div', { class: 'cap' }, d.group),
-          d.agents.map((a) => h('div', { class: 'dg-box agent' }, h('div', { class: 'cat' }, d.container), h('div', { class: 't' }, a), h('div', { class: 'd' }, d.agentDesc))),
-          h('div', { class: 'note' }, d.groupNote)),
+          d.agents.map((a) => h('div', { class: 'dg-box agent' }, h('div', { class: 't' }, a), h('div', { class: 'd' }, d.agentDesc)))),
         label('l1', '1', d.arrows.message),
         label('l4 reply', '4', d.arrows.reply),
         label('l2 stack', '2', d.arrows.toAgent),
         label('l3 stack model', '3', d.arrows.asks),
-        h('div', { class: 'dg-label l3n model' }, d.arrows.keyNote),
         h('div', { class: 'dg-label lk' }, d.arrows.keeps))));
-    return () => main.classList.remove('stacked');
+    return () => { stop(); main.classList.remove('stacked', 'home-page'); };
   }
 
   function reviewPage(main) {
@@ -539,7 +593,7 @@
 
   // ── Wiring ──────────────────────────────────────────────────────────────
 
-  const RENDER = { whats: whatsPage, course: coursePage, weather: weatherPage, chronicle: chroniclePage, review: reviewPage, widgets: widgetsPage, built: builtPage };
+  const RENDER = { home: homePage, course: coursePage, weather: weatherPage, chronicle: chroniclePage, review: reviewPage, widgets: widgetsPage, built: builtPage };
 
   function renderAll() {
     teardown();

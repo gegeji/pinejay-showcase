@@ -418,3 +418,68 @@ main.home-page { padding-top: 40px; }
   .home-page .dg-label.l1 { padding-bottom: 2px; }
   .home-page .dg-label.l4 { padding-top: 2px; }
 }
+
+/* Home diagram: six numbered steps, each pair of boxes with a request above and a return below */
+.dg .a-return { stroke: #d9a85b; stroke-width: 1.6; fill: none; }
+.home-page h1 { white-space: pre-line; }
+.home-page .dg-label.l6 { left: 184px; top: 240px; }
+.home-page .dg-label.l2 { top: 138px; }
+.home-page .dg-label.l5 { left: 494px; top: 240px; }
+.home-page .dg-label.l3 { top: 152px; }
+.home-page .dg-label.l4r { left: 824px; top: 240px; }
+@media (max-width: 760px) {
+  .home-page .dg-label.l6 { order: 3; }
+  .home-page .dg-label.l5 { order: 5; }
+  .home-page .dg-label.l2 { order: 5; }
+  .home-page .dg-label.l3 { order: 7; }
+  .home-page .dg-label.l4r { order: 7; }
+  .home-page .dg-label.l2, .home-page .dg-label.l3 { padding-bottom: 2px; }
+  .home-page .dg-label.l5, .home-page .dg-label.l4r { padding-top: 2px; }
+  .home-page .dg-label.l1 { padding-bottom: 2px; }
+  .home-page .dg-label.l6 { padding-top: 2px; }
+}
+
+/* Same content width on every page: at most 1088px next to the rail, the home page included */
+main { max-width: 1208px; }
+.features, .how { max-width: none; }
+.hero { justify-content: space-between; }
+.hero-text { flex: 0 1 560px; min-width: 0; }
+/* Page titles break where the copy says; CJK titles carry their own line breaks */
+.intro { width: 312px; }
+h1 { white-space: pre-line; text-wrap: pretty; }
+@media (max-width: 1100px) {
+  .intro { width: 100%; }
+}
+/* Narrow diagram: keep the direction next to each circled number */
+@media (max-width: 760px) {
+  .home-page .dg-label.l1 > span:last-child::before,
+  .home-page .dg-label.l2 > span:last-child::before,
+  .home-page .dg-label.l3 > span:last-child::before { content: "↓ "; }
+  .home-page .dg-label.l6 > span:last-child::before,
+  .home-page .dg-label.l5 > span:last-child::before,
+  .home-page .dg-label.l4r > span:last-child::before { content: "↑ "; }
+}
+
+/* Diagrams page: typhoon track image and its interactive sheet */
+.widget-img { height: auto; display: flex; flex-direction: column; background: #0f2740; }
+.widget-img svg { position: static; display: block; width: 100%; height: auto; }
+.ty-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 10px 12px 0; }
+.ty-head b { font-size: 13px; line-height: 18px; color: #f2f3f5; }
+.ty-head span { font-size: 11px; line-height: 14px; color: #8fa3b8; white-space: nowrap; }
+.ty-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 8px 12px 10px; font-size: 11px; line-height: 14px; color: #c9d3df; }
+.ty-legend > span { display: inline-flex; align-items: center; gap: 5px; }
+.ty-legend i { width: 14px; flex-shrink: 0; }
+.ty-legend .k0 { height: 9px; border-radius: 2px; background: rgba(242, 193, 78, 0.16); border: 1px solid rgba(242, 193, 78, 0.55); }
+.ty-legend .k1 { border-top: 2px dashed #f2c14e; }
+.ty-legend .k2 { height: 2px; background: #ff8a65; }
+.ty-pic svg { display: block; width: 100%; height: auto; border-radius: 10px; }
+.sheet .ty-row { display: flex; justify-content: space-between; }
+.sheet .ty-row b { color: #fff; }
+.sheet .ty-ticks { display: flex; justify-content: space-between; font-size: 11px; color: #8fa3b8; }
+.sheet input[type="range"] { accent-color: #f2c14e; }
+.sheet .state { padding: 12px 14px; border-radius: 10px; background: #22344f; font-size: 14px; line-height: 22px; min-height: 68px; color: #e6edf5; }
+/* Weather card: an icon before each day / night label */
+.dp-periods > span { display: inline-flex; align-items: center; gap: 3px; }
+.dp-periods .wx { display: inline-flex; flex-shrink: 0; }
+.dp-periods { width: auto; min-width: 74px; }
+.dp-periods > span { white-space: nowrap; }

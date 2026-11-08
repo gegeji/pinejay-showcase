@@ -94,6 +94,20 @@
       h('div', { class: 'chart-axis' }, h('span', {}, c.left), h('span', { class: 'mid' }, c.mid), h('span', {}, c.right)));
   }
 
+  // Small weather icons for the card: sun, moon, cloud, rain.
+  const WX = {
+    sun: '<circle cx="8" cy="8" r="3.2" fill="#F2A93B"/><g stroke="#F2A93B" stroke-width="1.4" stroke-linecap="round"><path d="M8 1.2v1.8M8 13v1.8M1.2 8h1.8M13 8h1.8M3.2 3.2l1.3 1.3M11.5 11.5l1.3 1.3M3.2 12.8l1.3-1.3M11.5 4.5l1.3-1.3"/></g>',
+    moon: '<circle cx="7.5" cy="8.5" r="5.5" fill="#6B7486"/><circle cx="10.4" cy="6.2" r="4.6" fill="#fff"/>',
+    cloud: '<path d="M4.6 12.4h7a2.8 2.8 0 0 0 .3-5.6 4 4 0 0 0-7.6-.9 2.9 2.9 0 0 0 .3 6.5Z" fill="#9AA3AE"/>',
+    rain: '<path d="M4.6 9.6h7a2.6 2.6 0 0 0 .3-5.2 3.8 3.8 0 0 0-7.2-.8 2.7 2.7 0 0 0-.1 6Z" fill="#7C8796"/><g stroke="#3B82F6" stroke-width="1.4" stroke-linecap="round"><path d="M5.5 11.6l-.8 2M8.5 11.6l-.8 2M11.5 11.6l-.8 2"/></g>',
+  };
+  function wxIcon(kind) {
+    const wrap = document.createElement('span');
+    wrap.className = 'wx';
+    wrap.innerHTML = `<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">${WX[kind]}</svg>`;
+    return wrap;
+  }
+
   // The morning card as the digest sends it: one row per place, the day's lines on the left, day and night on the right.
   function digestCard(c) {
     return h('div', { class: 'digest' },
@@ -104,7 +118,7 @@
           p.line ? h('div', { class: 'dp-line' }, p.line) : null,
           p.detail ? h('div', { class: 'dp-detail' }, p.detail) : null,
           p.air ? h('div', { class: 'dp-detail' }, p.air) : null),
-        h('div', { class: 'dp-periods' }, h('span', {}, p.day[0]), h('b', {}, p.day[1]), h('span', {}, p.night[0]), h('b', {}, p.night[1])))));
+        h('div', { class: 'dp-periods' }, h('span', {}, wxIcon(p.icons[0]), p.day[0]), h('b', {}, p.day[1]), h('span', {}, wxIcon(p.icons[1]), p.night[0]), h('b', {}, p.night[1])))));
   }
 
   // A message paragraph is a string, or a list of strings and { b } bold runs.
@@ -112,10 +126,61 @@
     return Array.isArray(p) ? p.map((x) => (typeof x === 'string' ? x : h('b', {}, x.b))) : p;
   }
 
-  function frontImage(w) {
+  // ── Typhoon track: past track, forecast points at 0/24/48/72 h, the cone they make ──
+  const TY_PAST = [[304, 196], [282, 186], [260, 172], [236, 158]];
+  const TY_FC = [[236, 158, 3], [192, 124, 12], [156, 92, 22], [130, 58, 34]];
+  const TY_CITY = [101, 70];
+  const TY_KM = 2.7; // km per map unit
+  const TY_CONE = 'M96 58 L97.2 49.2 L100.6 41 L106 34 L113 28.6 L121.2 25.2 L130 24 L138.8 25.2 L147 28.6 L154 34 L157 37.3 L238.4 156.2 L239 158 L238.4 159.8 L236 161 L234.5 160.6 L186 134.4 L145 111.1 L142.6 109.5 L109.3 85 L106 82 L103 78.7 L100.6 75 L98.6 71 L97.2 66.8 L96.3 62.4 Z';
+
+  function tyAt(hr) {
+    const i = Math.min(2, Math.floor(hr / 24));
+    const t = (hr - 24 * i) / 24;
+    const p = TY_FC[i];
+    const q = TY_FC[i + 1];
+    return [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t, p[2] + (q[2] - p[2]) * t];
+  }
+
+  // The map as SVG markup. `hr` null draws the still image; a number draws the interactive frame at that hour.
+  function typhoonMap(w, hr) {
+    const live = hr !== null;
+    const pos = live ? tyAt(hr) : TY_FC[0];
+    const path = (pts) => pts.map(([x, y], i) => (i ? 'L' : 'M') + x + ' ' + y).join(' ');
+    const fc = TY_FC.map(([x, y]) => [x, y]);
+    const done = live ? [...fc.filter((_, i) => i * 24 <= hr), [pos[0], pos[1]]] : [];
+    const labelAt = [[246, 152], [206, 122], [182, 88], [168, 44]];
+    return `
+      <defs><linearGradient id="ty-sea" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0F2740"/><stop offset="1" stop-color="#143A5E"/></linearGradient></defs>
+      <rect width="318" height="206" fill="url(#ty-sea)"/>
+      <g stroke="#fff" stroke-opacity="0.07"><path d="M80 0 V206 M160 0 V206 M240 0 V206 M0 70 H318 M0 140 H318"/></g>
+      <path d="M0 0 L118 0 C108 22 92 34 98 52 C104 70 84 82 88 100 C92 118 70 130 62 150 C56 166 40 180 30 206 L0 206 Z" fill="#26362F" stroke="#4B6658" stroke-width="1.2"/>
+      <path d="${TY_CONE}" fill="#F2C14E" fill-opacity="${live ? 0.08 : 0.16}" stroke="#F2C14E" stroke-opacity="${live ? 0.3 : 0.55}"/>
+      ${live ? `<circle cx="${pos[0]}" cy="${pos[1]}" r="${pos[2]}" fill="#F2C14E" fill-opacity="0.22" stroke="#F2C14E" stroke-width="1.5"/>`
+    : TY_FC.slice(1).map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="#F2C14E" stroke-opacity="0.45" stroke-dasharray="2 3"/>`).join('')}
+      <path d="${path(TY_PAST)}" fill="none" stroke="#FF8A65" stroke-width="2"/>
+      ${TY_PAST.slice(1, 3).map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.5" fill="#FF8A65"/>`).join('')}
+      <path d="${path(fc)}" fill="none" stroke="#F2C14E" stroke-opacity="${live ? 0.35 : 1}" stroke-width="2" stroke-dasharray="5 4"/>
+      ${live ? `<path d="${path(done)}" fill="none" stroke="#F2C14E" stroke-width="2" stroke-dasharray="5 4"/>`
+    : fc.slice(1).map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3" fill="#F2C14E"/>`).join('')}
+      <g transform="translate(${pos[0]} ${pos[1]})"><path d="M0 -9 C6 -9 9 -4 9 0 M0 9 C-6 9 -9 4 -9 0" fill="none" stroke="#FF7A59" stroke-width="2.4" stroke-linecap="round"/><circle r="4.5" fill="#FF7A59"/></g>
+      <circle cx="${TY_CITY[0]}" cy="${TY_CITY[1]}" r="4" fill="#fff"/>
+      <text x="93" y="74" fill="#F2F3F5" font-size="12" font-weight="600" text-anchor="end">${w.place}</text>
+      ${live ? '' : `<g fill="#C9D3DF" font-size="10">${w.labels.map((l, i) => `<text x="${labelAt[i][0]}" y="${labelAt[i][1]}">${l}</text>`).join('')}</g>`}`;
+  }
+
+  function tySvg(markup) {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `<svg viewBox="0 0 318 206" aria-hidden="true" font-family="inherit">${markup}</svg>`;
+    return wrap.firstChild;
+  }
+
+  function tyLegend(w) {
+    return h('span', { class: 'ty-legend' }, w.legend.map((text, i) => h('span', {}, h('i', { class: 'k' + i }), text)));
+  }
+
+  function typhoonImage(w) {
     const btn = h('button', { type: 'button', class: 'widget-img', 'aria-label': w.open, onclick: () => openWidget(w) });
-    btn.append(svg('<path d="M0 210 L0 120 C 60 112, 110 70, 170 40 L 170 210 Z" fill="#2C4A73"/><path d="M0 120 C 60 112, 110 70, 170 40" stroke="#8FB8E8" stroke-width="3" fill="none"/><path d="M58 108 l 12 -18 l 9 15 Z M112 78 l 12 -18 l 9 15 Z" fill="#8FB8E8"/><path d="M175 150 C 200 120, 215 100, 230 70" stroke="#D9E4F2" stroke-width="2" stroke-dasharray="4 5" fill="none"/><ellipse cx="205" cy="54" rx="40" ry="16" fill="#D9E4F2" opacity="0.85"/><path d="M190 76 l -4 12 M205 76 l -4 12 M220 76 l -4 12" stroke="#8FB8E8" stroke-width="2"/>', 318, 210));
-    btn.append(h('span', { class: 'w-title' }, w.title), h('span', { class: 'w-cold' }, w.cold), h('span', { class: 'w-warm' }, w.warm));
+    btn.append(h('span', { class: 'ty-head' }, h('b', {}, w.title), h('span', {}, w.issued)), tySvg(typhoonMap(w, null)), tyLegend(w));
     return btn;
   }
 
@@ -367,7 +432,7 @@
     return mountChat(chatHost, {
       chat: w.chat,
       script: w.script,
-      extraTop: (m) => (m.widget ? [frontImage(w.widget), h('button', { type: 'button', class: 'msg-link', onclick: () => openWidget(w.widget) }, w.widget.open)] : null),
+      extraTop: (m) => (m.widget ? [typhoonImage(w.widget), h('button', { type: 'button', class: 'msg-link', onclick: () => openWidget(w.widget) }, w.widget.open)] : null),
       keyboard: () => null,
     });
   }
@@ -496,8 +561,10 @@
     const arrows = `
       <line x1="182" y1="196" x2="272" y2="196" class="a-main"/><path d="M268 191 L276 196 L268 201" class="a-main"/>
       <line x1="278" y1="232" x2="188" y2="232" class="a-reply"/><path d="M192 227 L184 232 L192 237" class="a-reply"/>
-      <line x1="492" y1="214" x2="582" y2="214" class="a-main"/><path d="M578 209 L586 214 L578 219" class="a-main"/>
-      <line x1="822" y1="214" x2="912" y2="214" class="a-model"/><path d="M908 209 L916 214 L908 219" class="a-model"/>
+      <line x1="492" y1="196" x2="582" y2="196" class="a-main"/><path d="M578 191 L586 196 L578 201" class="a-main"/>
+      <line x1="588" y1="232" x2="498" y2="232" class="a-reply"/><path d="M502 227 L494 232 L502 237" class="a-reply"/>
+      <line x1="822" y1="196" x2="912" y2="196" class="a-model"/><path d="M908 191 L916 196 L908 201" class="a-model"/>
+      <line x1="918" y1="232" x2="828" y2="232" class="a-return"/><path d="M832 227 L824 232 L832 237" class="a-return"/>
       <line x1="385" y1="262" x2="385" y2="334" class="a-keep"/>`;
     main.append(h('section', { class: 'dg-scroll' },
       h('div', { class: 'dg', role: 'img', 'aria-label': [d.you[1], d.host[1], d.group, d.model[1]].join(', ') },
@@ -510,9 +577,11 @@
           h('div', { class: 'cap' }, d.group),
           d.agents.map((a) => h('div', { class: 'dg-box agent' }, h('div', { class: 't' }, a), h('div', { class: 'd' }, d.agentDesc)))),
         label('l1', '1', d.arrows.message),
-        label('l4 reply', '4', d.arrows.reply),
+        label('l6 reply', '6', d.arrows.reply),
         label('l2 stack', '2', d.arrows.toAgent),
+        label('l5 reply', '5', d.arrows.handsBack),
         label('l3 stack model', '3', d.arrows.asks),
+        label('l4r model', '4', d.arrows.returns),
         h('div', { class: 'dg-label lk' }, d.arrows.keeps))));
     return () => { stop(); main.classList.remove('stacked', 'home-page'); };
   }
@@ -548,31 +617,24 @@
     });
   }
 
-  // ── Interactive widget: drag time and watch the front pass ──────────────
+  // ── Interactive widget: drag the hours and watch the typhoon and its circle move ──
 
   function openWidget(w) {
     const modal = document.getElementById('modal');
     const t = CONTENT[lang];
     const state = h('div', { class: 'state' });
-    const range = h('input', { type: 'range', min: '0', max: '6', step: '0.1', value: '0' });
-    const pic = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    pic.setAttribute('viewBox', '0 0 480 240');
+    const value = h('b', {});
+    // Stops at the forecast times, so each caption describes exactly the circle on the map.
+    const range = h('input', { type: 'range', min: '0', max: '72', step: '24', value: '0' });
+    const pic = h('div', { class: 'ty-pic' });
 
     function draw() {
-      const hours = Number(range.value);
-      const x = 60 + hours * 50; // front position; "you" stand at x = 300
-      pic.innerHTML = `
-        <path d="M0 240 L0 ${150} C ${x * 0.4} 145, ${x * 0.75} 110, ${x} 70 L ${x} 240 Z" fill="#2C4A73"/>
-        <path d="M0 150 C ${x * 0.4} 145, ${x * 0.75} 110, ${x} 70" stroke="#8FB8E8" stroke-width="3" fill="none"/>
-        <ellipse cx="${x + 45}" cy="58" rx="52" ry="20" fill="#D9E4F2" opacity="0.9"/>
-        <path d="M${x + 25} 84 l -5 14 M${x + 45} 84 l -5 14 M${x + 65} 84 l -5 14" stroke="#8FB8E8" stroke-width="2"/>
-        <line x1="300" y1="200" x2="300" y2="230" stroke="#F2C14E" stroke-width="3"/>
-        <circle cx="300" cy="196" r="6" fill="#F2C14E"/>
-        <text x="300" y="186" fill="#F2C14E" font-size="13" text-anchor="middle" font-family="inherit">${w.you}</text>
-        <text x="16" y="226" fill="#D9E4F2" font-size="13" font-family="inherit">${w.cold}</text>
-        <text x="464" y="226" fill="#D9E4F2" font-size="13" text-anchor="end" font-family="inherit">${w.warm}</text>`;
-      const phase = x < 240 ? 0 : x < 300 ? 1 : 2;
-      state.textContent = w.states[phase];
+      const hr = Number(range.value);
+      const [x, y] = tyAt(hr);
+      const km = Math.round((Math.hypot(x - TY_CITY[0], y - TY_CITY[1]) * TY_KM) / 10) * 10;
+      pic.replaceChildren(tySvg(typhoonMap(w, hr)));
+      value.textContent = `${hr} ${w.unit}`;
+      state.textContent = w.states[hr / 24].replace('{km}', km);
     }
 
     range.addEventListener('input', draw);
@@ -584,7 +646,8 @@
     modal.replaceChildren(h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': w.title },
       h('div', { class: 'sheet-head' }, h('b', {}, w.title), h('button', { type: 'button', onclick: close }, t.ui.close)),
       pic,
-      h('label', {}, w.slider, range),
+      h('label', {}, h('span', { class: 'ty-row' }, w.slider, value), range,
+        h('span', { class: 'ty-ticks' }, w.labels.map((l) => h('span', {}, l)))),
       state));
     draw();
     modal.hidden = false;

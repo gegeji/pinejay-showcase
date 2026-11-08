@@ -1,5 +1,5 @@
 // All copy and chat scripts, one block per language. Everything here is fictional.
-// Source of truth for wording: Paper file "Pinejay Showcase Site", page 「文案 · 四语对照」.
+// Source of truth for wording: Paper file "Pinejay Showcase Site", page 「提案 · 待评审」.
 const NANOCLAW = 'https://github.com/qwibitai/nanoclaw';
 
 window.CONTENT = {
@@ -7,7 +7,6 @@ window.CONTENT = {
     htmlLang: 'en',
     ui: {
       tagline: "A personal assistant, used mostly through Telegram",
-      fictional: 'All data on this site is fictional.',
       nav: {"home": "Home", "chronicle": "Journal", "review": "Review", "widgets": "Interactive diagrams", "course": "Course", "weather": "Weather", "built": "How it's built"},
       replay: 'Replay',
       pause: 'Pause',
@@ -374,7 +373,7 @@ window.CONTENT = {
       title: "A look back every evening",
       body: [
         "Every evening it goes through my recent chats, my journal and the articles I’ve read, looking for problems that keep coming back, things I started and didn’t finish, and places where I said two different things.",
-        "When it finds something, it sends it to me with what I said at the time. Quick actions underneath let me reply right there: remind me later, or tell it I’m not doing this, and it won’t bring it up again.",
+        "When it finds a problem, it sends it to me with what I said at the time. Quick actions underneath let me reply right there: remind me later, or tell it I’m not doing this, and it won’t bring it up again.",
       ],
       chat: { avatar: 'R', name: 'Review', sub: 'Every evening at 9' },
       script: [
@@ -389,14 +388,8 @@ window.CONTENT = {
         two: 'From tomorrow the course sends two lessons a day.',
       },
       side: {
-        label: 'What it reads',
-        rows: [
-          ['7 days', "Chats", "What I said in Telegram, the terminal and coding tools."],
-          ['7 days', "Journal and feed", "What happened, what I plan to do, what I read."],
-          ['Sunday', 'Weekly look back', 'The same week last year, and opinions that have changed since.'],
-        ],
-        checkLabel: "Checking quotes",
-        checkText: "Each quote is checked against the source it names. If they don’t match, it isn’t sent.",
+        label: "What it reads",
+        rows: [["Chats", "What I said in Telegram, the terminal and coding tools."], ["Journal and RSS feeds", "What happened, what I plan to do, what I read."], ["On this day", "The same week last year, and opinions that have changed since."]],
       },
     },
     widgets: {
@@ -405,9 +398,9 @@ window.CONTENT = {
       chat: {"avatar": "F", "name": "Reading a forecast", "sub": "Lesson 5, typhoon tracks"},
       script: [
         { from: 'me', time: '20:31', text: ["What does the cone on a typhoon track map mean, the one that keeps getting wider? Does the typhoon get bigger?"] },
-        { from: 'bot', time: '20:31', widget: true, text: ["The typhoon isn’t getting bigger. The cone shows where its centre could go: the further ahead the forecast, the less certain it is, so the circles get bigger.", "By day three the circle already covers South Port, but the centre line runs to the east of it. A direct hit and a near miss are both possible; look again when it’s closer."] },
+        { from: 'bot', time: '20:31', widget: true, text: ["That doesn’t mean the typhoon is getting bigger. The cone shows where its centre could go: the further ahead the forecast, the less certain it is, so the circles get bigger.", "By day three the circle already covers South Port, but the centre line runs to the east of it. So the typhoon could hit South Port directly or just brush past it; we have to wait until it’s closer to tell."] },
       ],
-      widget: {"title": "Typhoon Haiou, next 72 hours", "issued": "Issued 8 Nov, 20:00", "place": "South Port", "labels": ["Now", "24 h", "48 h", "72 h"], "legend": ["Where the centre could go", "Forecast track", "Track so far"], "open": "Open the interactive version", "slider": "Hours from now", "unit": "h", "states": ["Right now the centre is out at sea, about {km} km from South Port.", "In a day the centre should be somewhere in this small circle, about {km} km from South Port.", "In two days the circle is twice as big and the centre is about {km} km from South Port. The further ahead, the less certain, so the bigger the circle.", "In three days South Port is inside the circle, but the centre line passes to the east. A direct hit and a near miss are both possible."]},
+      widget: {"title": "Typhoon Haiou, next 72 hours", "issued": "Issued 8 Nov, 20:00", "place": "South Port", "labels": ["Now", "24 h", "48 h", "72 h"], "legend": ["Where the centre could go", "Forecast track", "Track so far"], "open": "Open the interactive version", "slider": "Hours from now", "unit": "h", "states": ["Right now the centre is out at sea, about {km} km from South Port.", "In a day the centre should be somewhere in this small circle, about {km} km from South Port.", "In two days the centre should be somewhere in this circle, about {km} km from South Port. The circle is twice the size of the 24-hour one, because the further ahead, the harder it is to say exactly where the typhoon will go.", "In three days South Port is inside the circle, but the centre line passes to the east. A direct hit and a near miss are both possible."]},
       steps: {
         label: "How a diagram is made",
         rows: [
@@ -422,11 +415,11 @@ window.CONTENT = {
       title: "How Pinejay is built",
       body: [
         "I decide what to design and build. The actual design, code, checking and deploying are done by Claude Code and Codex.",
-        "Every change is first registered as a work item that says what counts as done. Whoever wrote the code can’t declare it done; another AI checks it from scratch, and it goes live only when every acceptance criterion passes.",
+        "Every change is first registered as a work item that says what counts as done. The AI that wrote the code can’t declare it done; another AI checks it from scratch, and it goes live only when every acceptance criterion passes.",
       ],
       label: "Example: today’s change to the weather digest",
       demo: {
-        id: 'DEV-605d37ef',
+        id: 'DEV-4f2a91c0',
         title: "The digest covers more than rain",
         quoteLabel: "Me: ",
         quote: "“Shouldn’t it mention haze, cold snaps and sun protection?”",
@@ -445,7 +438,6 @@ window.CONTENT = {
     htmlLang: 'zh-CN',
     ui: {
       tagline: "Telegram 里的私人助手",
-      fictional: '本站数据均为虚构。',
       nav: {"home": "首页", "chronicle": "日记", "review": "回顾", "widgets": "交互式说明图", "course": "课程", "weather": "天气", "built": "开发方式"},
       replay: '从头播放',
       pause: '暂停',
@@ -806,7 +798,7 @@ window.CONTENT = {
       title: "每天晚上\n回看一遍",
       body: [
         "每天晚上，它把最近的聊天、日记和我读过的文章翻一遍，看有没有反复出现的问题、开了头没做完的事，或者前后说法不一致的地方。",
-        "找到了就发给我，附上我当时说的原话。下面有快捷操作可以直接回复：让它到时候再提醒，或者告诉它这件事不做了，以后就不再提。",
+        "找到了什么问题就发给我，附上我当时说的原话。下面有快捷操作可以直接回复：让它到时候再提醒，或者告诉它这件事不做了，以后就不再提。",
       ],
       chat: { avatar: '回', name: '回顾', sub: '每天晚上 9 点' },
       script: [
@@ -817,13 +809,7 @@ window.CONTENT = {
       replies: { remind: '3 月 1 日提醒你订船票。', drop: '已从计划里去掉，之后不再提。', slow: '课程保持每天一讲。', two: '从明天起，课程每天发两讲。' },
       side: {
         label: "它读哪些",
-        rows: [
-          ['7 天', '对话', "Telegram、终端和编程工具里说过的话。"],
-          ['7 天', "日记和订阅", "发生了什么、打算做什么、读了什么。"],
-          ['周日', '每周回看', '去年的同一周，以及之后改变了的看法。'],
-        ],
-        checkLabel: "原话核对",
-        checkText: "每句原话都会和标注的出处对一遍，对不上的不发。",
+        rows: [["对话", "Telegram、终端和编程工具里说过的话。"], ["日记和 RSS 订阅", "发生了什么、打算做什么、读了什么。"], ["往年今日", "去年的同一周，以及之后改变了的看法。"]],
       },
     },
     widgets: {
@@ -832,9 +818,9 @@ window.CONTENT = {
       chat: {"avatar": "天", "name": "看懂天气预报", "sub": "第 5 讲：台风路径图"},
       script: [
         { from: 'me', time: '20:31', text: ["台风路径图上那个越画越宽的锥形是什么意思？是说台风会越变越大吗？"] },
-        { from: 'bot', time: '20:31', widget: true, text: ["不是台风变大。锥形画的是台风中心可能经过的范围：预报越往后越说不准，所以圈越画越大。", "三天后的圈已经把南港包进去了，但中心线在南港东边。正面经过和擦过去都有可能，等离得更近再看。"] },
+        { from: 'bot', time: '20:31', widget: true, text: ["不是台风变大的意思。锥形画的是台风中心可能经过的范围：预报越往后越说不准，所以圈越画越大。", "三天后的圈已经把南港包进去了，但中心线在南港东边。所以台风正面经过和擦过去南港都有可能，要等离得更近再看。"] },
       ],
-      widget: {"title": "台风「海鸥」未来 72 小时", "issued": "11 月 8 日 20 时发布", "place": "南港", "labels": ["现在", "24 小时", "48 小时", "72 小时"], "legend": ["中心可能经过的范围", "预报路径", "走过的路"], "open": "打开交互版", "slider": "从现在起的小时数", "unit": "小时", "states": ["现在中心在海上，离南港约 {km} 公里。", "一天后，中心大概在这个小圈里，离南港约 {km} 公里。", "两天后，圈大了一倍，中心离南港约 {km} 公里。越往后越说不准，圈就越大。", "三天后，南港已经在圈里，但中心线在东边。正面经过和擦过去都有可能。"]},
+      widget: {"title": "台风「海鸥」未来 72 小时", "issued": "11 月 8 日 20 时发布", "place": "南港", "labels": ["现在", "24 小时", "48 小时", "72 小时"], "legend": ["中心可能经过的范围", "预报路径", "走过的路"], "open": "打开交互版", "slider": "从现在起的小时数", "unit": "小时", "states": ["现在中心在海上，离南港约 {km} 公里。", "一天后，中心大概在这个小圈里，离南港约 {km} 公里。", "两天后，中心大概在这个圈里的某个位置，离南港约 {km} 公里。圈比 24 小时那个大了一倍，表示越往后越说不准台风精确的走向。", "三天后，南港已经在圈里，但中心线在东边。正面经过和擦过去都有可能。"]},
       steps: {
         label: "一张说明图是怎么做出来的",
         rows: [
@@ -847,10 +833,10 @@ window.CONTENT = {
     },
     built: {
       title: "Pinejay\n是怎么开发的",
-      body: ["我来决定设计和开发什么内容。具体的设计、写代码、检查和上线的工作，交给 Claude Code 和 Codex 完成。", "每个改动先登记成一个事项，写清楚怎样才算做完。写代码的那个不能自己说做完了，要由另一个 AI 从头检查一遍，每一条验收标准通过了才能上线。"],
+      body: ["我来决定设计和开发什么内容。具体的设计、写代码、检查和上线的工作，交给 Claude Code 和 Codex 完成。", "每个改动先登记成一个事项，写清楚怎样才算做完。写代码的 AI 不能自己说做完了，要由另一个 AI 从头检查一遍，每一条验收标准通过了才能上线。"],
       label: "例子：今天的天气早报改动",
       demo: {
-        id: 'DEV-605d37ef',
+        id: 'DEV-4f2a91c0',
         title: "早报不只讲下雨",
         quoteLabel: "我：",
         quote: "“雾霾、降温、防晒这些都不写吗？”",
@@ -869,7 +855,6 @@ window.CONTENT = {
     htmlLang: 'zh-HK',
     ui: {
       tagline: "Telegram 裡的私人助理",
-      fictional: '本網站的資料全屬虛構。',
       nav: {"home": "首頁", "chronicle": "日記", "review": "回顧", "widgets": "互動說明圖", "course": "課程", "weather": "天氣", "built": "開發方式"},
       replay: '從頭播放',
       pause: '暫停',
@@ -1230,7 +1215,7 @@ window.CONTENT = {
       title: "每天晚上\n回看一遍",
       body: [
         "每天晚上，它把最近的聊天、日記和我讀過的文章翻一遍，看看有沒有反覆出現的問題、開了頭未做完的事，或者前後說法不一致的地方。",
-        "找到了就發給我，附上我當時說的原話。下面有快捷操作可以直接回覆：讓它到時再提醒，或者告訴它這件事不做了，以後就不會再提。",
+        "找到了甚麼問題就發給我，附上我當時說的原話。下面有快捷操作可以直接回覆：讓它到時再提醒，或者告訴它這件事不做了，以後就不會再提。",
       ],
       chat: { avatar: '回', name: '回顧', sub: '每天晚上 9 時' },
       script: [
@@ -1241,13 +1226,7 @@ window.CONTENT = {
       replies: { remind: '3 月 1 日會提醒你訂船票。', drop: '已從計劃中刪除，之後不會再提。', slow: '課程維持每天一課。', two: '由明天起，課程每天發送兩課。' },
       side: {
         label: "它讀哪些",
-        rows: [
-          ['7 天', '對話', "在 Telegram、終端機和編程工具中說過的話。"],
-          ['7 天', "日記和訂閱", "發生了甚麼、打算做甚麼、讀了甚麼。"],
-          ['星期日', '每週回看', '去年同一星期，以及之後改變了的看法。'],
-        ],
-        checkLabel: "原話核對",
-        checkText: "每句原話都會與標示的出處核對一遍，對不上的不發。",
+        rows: [["對話", "在 Telegram、終端機和編程工具中說過的話。"], ["日記和 RSS 訂閱", "發生了甚麼、打算做甚麼、讀了甚麼。"], ["往年今日", "去年同一星期，以及之後改變了的看法。"]],
       },
     },
     widgets: {
@@ -1256,9 +1235,9 @@ window.CONTENT = {
       chat: {"avatar": "天", "name": "看懂天氣預報", "sub": "第 5 課：颱風路徑圖"},
       script: [
         { from: 'me', time: '20:31', text: ["颱風路徑圖上那個越畫越闊的錐形是甚麼意思？是說颱風會越變越大嗎？"] },
-        { from: 'bot', time: '20:31', widget: true, text: ["不是颱風變大。錐形畫的是颱風中心可能經過的範圍：預報越往後越說不準，所以圈越畫越大。", "三天後的圈已經把南港包進去了，但中心線在南港東邊。正面吹襲和擦過都有可能，等距離近一點再看。"] },
+        { from: 'bot', time: '20:31', widget: true, text: ["不是颱風變大的意思。錐形畫的是颱風中心可能經過的範圍：預報越往後越說不準，所以圈越畫越大。", "三天後的圈已經把南港包進去了，但中心線在南港東邊。所以颱風正面吹襲和擦過南港都有可能，要等距離更近再看。"] },
       ],
-      widget: {"title": "颱風「海鷗」未來 72 小時", "issued": "11 月 8 日 20 時發布", "place": "南港", "labels": ["現在", "24 小時", "48 小時", "72 小時"], "legend": ["中心可能經過的範圍", "預報路徑", "走過的路"], "open": "打開互動版", "slider": "從現在起的小時數", "unit": "小時", "states": ["現在中心在海上，離南港約 {km} 公里。", "一天後，中心大概在這個小圈裡，離南港約 {km} 公里。", "兩天後，圈大了一倍，中心離南港約 {km} 公里。越往後越說不準，圈就越大。", "三天後，南港已經在圈裡，但中心線在東邊。正面吹襲和擦過都有可能。"]},
+      widget: {"title": "颱風「海鷗」未來 72 小時", "issued": "11 月 8 日 20 時發布", "place": "南港", "labels": ["現在", "24 小時", "48 小時", "72 小時"], "legend": ["中心可能經過的範圍", "預報路徑", "走過的路"], "open": "打開互動版", "slider": "從現在起的小時數", "unit": "小時", "states": ["現在中心在海上，離南港約 {km} 公里。", "一天後，中心大概在這個小圈裡，離南港約 {km} 公里。", "兩天後，中心大概在這個圈裡的某個位置，離南港約 {km} 公里。圈比 24 小時那個大了一倍，表示越往後越說不準颱風準確的走向。", "三天後，南港已經在圈裡，但中心線在東邊。正面吹襲和擦過都有可能。"]},
       steps: {
         label: "一張說明圖是怎樣做出來的",
         rows: [
@@ -1271,10 +1250,10 @@ window.CONTENT = {
     },
     built: {
       title: "Pinejay\n是怎樣開發的",
-      body: ["我來決定設計和開發甚麼內容。具體的設計、寫程式、檢查和上線工作，交給 Claude Code 和 Codex 完成。", "每項改動先登記成一個事項，寫清楚怎樣才算完成。寫程式的那個不能自己說已完成，要由另一個 AI 從頭檢查一遍，每一條驗收標準都通過才能上線。"],
+      body: ["我來決定設計和開發甚麼內容。具體的設計、寫程式、檢查和上線工作，交給 Claude Code 和 Codex 完成。", "每項改動先登記成一個事項，寫清楚怎樣才算完成。寫程式的 AI 不能自己說已完成，要由另一個 AI 從頭檢查一遍，每一條驗收標準都通過才能上線。"],
       label: "例子：今天的天氣早報改動",
       demo: {
-        id: 'DEV-605d37ef',
+        id: 'DEV-4f2a91c0',
         title: "早報不只講下雨",
         quoteLabel: "我：",
         quote: "「霧霾、降溫、防曬這些都不寫嗎？」",
@@ -1293,7 +1272,6 @@ window.CONTENT = {
     htmlLang: 'ja',
     ui: {
       tagline: "Telegram で使うパーソナルアシスタント",
-      fictional: 'このサイトのデータはすべて架空です。',
       nav: {"home": "ホーム", "chronicle": "日記", "review": "ふりかえり", "widgets": "操作できる図解", "course": "コース", "weather": "天気", "built": "作り方"},
       replay: '最初から',
       pause: '一時停止',
@@ -1654,7 +1632,7 @@ window.CONTENT = {
       title: "毎晩の\nふりかえり",
       body: [
         "毎晩、最近のチャット、日記、読んだ記事にひととおり目を通し、繰り返し出てくる問題、始めたまま終わっていないこと、前と言っていることが食い違っているところを探します。",
-        "見つかったら、そのときの私の発言を添えて送ってきます。下のクイック操作でそのまま返事ができます。あとでもう一度知らせてもらうか、もうやらないと伝えれば、それ以降は取り上げません。",
+        "何か問題が見つかったら、そのときの私の発言を添えて送ってきます。下のクイック操作でそのまま返事ができます。あとでもう一度知らせてもらうか、もうやらないと伝えれば、それ以降は取り上げません。",
       ],
       chat: { avatar: 'ふ', name: 'ふりかえり', sub: '毎晩 21 時' },
       script: [
@@ -1664,14 +1642,8 @@ window.CONTENT = {
       keys: { f1: [['remind', '3 月にリマインド'], ['drop', 'やめた']], f2: [['slow', 'ゆっくりのまま'], ['two', '一日 2 回']] },
       replies: { remind: '3 月 1 日にフェリーの予約をリマインドします。', drop: '予定から外しました。今後は取り上げません。', slow: 'コースは一日 1 回のままにします。', two: '明日からコースは一日 2 回送ります。' },
       side: {
-        label: '読むもの',
-        rows: [
-          ['7 日', '会話', "Telegram、ターミナル、コーディングツールで話したこと。"],
-          ['7 日', "日記とフィード", "起きたこと、予定していること、読んだもの。"],
-          ['日曜', '週ごとのふりかえり', '去年の同じ週と、その後変わった考え。'],
-        ],
-        checkLabel: "発言の照合",
-        checkText: "引用した発言はすべて、示した出典と照らし合わせます。合わないものは送りません。",
+        label: "読むもの",
+        rows: [["会話", "Telegram、ターミナル、コーディングツールで話したこと。"], ["日記と RSS フィード", "起きたこと、予定していること、読んだもの。"], ["過去の今日", "去年の同じ週と、その後変わった考え。"]],
       },
     },
     widgets: {
@@ -1680,9 +1652,9 @@ window.CONTENT = {
       chat: {"avatar": "天", "name": "天気予報を読む", "sub": "第 5 回：台風の進路図"},
       script: [
         { from: 'me', time: '20:31', text: ["台風の進路図で、どんどん広がっていく円錐みたいな形は何？台風が大きくなるってこと？"] },
-        { from: 'bot', time: '20:31', widget: true, text: ["台風が大きくなるわけではありません。円錐は台風の中心が通る可能性のある範囲です。先の予報ほど不確かになるので、円が大きくなります。", "3 日後の円には南港が入っていますが、中心線は南港の東側です。直撃もかすめるだけもありえるので、近づいてからもう一度確認しましょう。"] },
+        { from: 'bot', time: '20:31', widget: true, text: ["台風が大きくなるという意味ではありません。円錐は台風の中心が通る可能性のある範囲です。先の予報ほど不確かになるので、円が大きくなります。", "3 日後の円には南港が入っていますが、中心線は南港の東側です。そのため南港を直撃することも、かすめるだけのこともありえるので、もっと近づいてから判断します。"] },
       ],
-      widget: {"title": "台風「カモメ」この先 72 時間", "issued": "11 月 8 日 20 時発表", "place": "南港", "labels": ["現在", "24 時間", "48 時間", "72 時間"], "legend": ["中心が通る可能性のある範囲", "予報進路", "これまでの進路"], "open": "インタラクティブ版を開く", "slider": "今からの時間", "unit": "時間", "states": ["いま中心は海の上で、南港から約 {km} km。", "1 日後、中心はこの小さな円のどこかにあり、南港から約 {km} km。", "2 日後には円が 2 倍になり、中心は南港から約 {km} km。先になるほど不確かなので、円が大きくなります。", "3 日後には南港が円の中に入りますが、中心線は東側を通ります。直撃もかすめるだけもありえます。"]},
+      widget: {"title": "台風「カモメ」この先 72 時間", "issued": "11 月 8 日 20 時発表", "place": "南港", "labels": ["現在", "24 時間", "48 時間", "72 時間"], "legend": ["中心が通る可能性のある範囲", "予報進路", "これまでの進路"], "open": "インタラクティブ版を開く", "slider": "今からの時間", "unit": "時間", "states": ["いま中心は海の上で、南港から約 {km} km。", "1 日後、中心はこの小さな円のどこかにあり、南港から約 {km} km。", "2 日後、中心はこの円の中のどこかにあり、南港から約 {km} km。円が 24 時間後の 2 倍になっているのは、先になるほど台風の正確な進路が読めなくなるからです。", "3 日後には南港が円の中に入りますが、中心線は東側を通ります。直撃もかすめるだけもありえます。"]},
       steps: {
         label: "説明図ができるまで",
         rows: [
@@ -1695,10 +1667,10 @@ window.CONTENT = {
     },
     built: {
       title: "Pinejay の\n作り方",
-      body: ["何を設計し、何を作るかは私が決めます。実際の設計、コード、チェック、公開は Claude Code と Codex に任せています。", "変更はまず作業項目として登録し、何をもって完了とするかを書きます。コードを書いた側は自分で完了と言えず、別の AI が最初から確認して、受け入れ条件をすべて満たしたときだけ公開されます。"],
+      body: ["何を設計し、何を作るかは私が決めます。実際の設計、コード、チェック、公開は Claude Code と Codex に任せています。", "変更はまず作業項目として登録し、何をもって完了とするかを書きます。コードを書いた AI は自分で完了と言えず、別の AI が最初から確認して、受け入れ条件をすべて満たしたときだけ公開されます。"],
       label: "例：今日の天気レポートの変更",
       demo: {
-        id: 'DEV-605d37ef',
+        id: 'DEV-4f2a91c0',
         title: "レポートは雨だけじゃない",
         quoteLabel: "私：",
         quote: "「もや、冷え込み、日焼け対策は書かないの？」",

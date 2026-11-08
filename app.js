@@ -593,10 +593,8 @@
     main.append(chatHost);
     main.append(h('section', { class: 'side' },
       h('div', { class: 'label' }, r.side.label),
-      h('div', { class: 'rows' }, r.side.rows.map(([time, head, desc]) => h('div', { class: 'row' },
-        h('span', { class: 'time' }, time),
-        h('div', { class: 'stack' }, h('div', { class: 'head' }, head), h('div', { class: 'desc' }, desc))))),
-      h('div', { class: 'check' }, h('div', { class: 'label' }, r.side.checkLabel), h('p', {}, r.side.checkText))));
+      h('div', { class: 'rows' }, r.side.rows.map(([head, desc]) => h('div', { class: 'row' },
+        h('div', { class: 'stack' }, h('div', { class: 'head' }, head), h('div', { class: 'desc' }, desc)))))));
 
     return mountChat(chatHost, {
       chat: r.chat,

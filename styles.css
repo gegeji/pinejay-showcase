@@ -450,3 +450,12 @@ h1 { white-space: pre-line; text-wrap: pretty; }
 @media (max-width: 1100px) {
   .intro { width: 100%; }
 }
+/* Narrow diagram: keep the direction next to each circled number */
+@media (max-width: 760px) {
+  .home-page .dg-label.l1 > span:last-child::before,
+  .home-page .dg-label.l2 > span:last-child::before,
+  .home-page .dg-label.l3 > span:last-child::before { content: "↓ "; }
+  .home-page .dg-label.l6 > span:last-child::before,
+  .home-page .dg-label.l5 > span:last-child::before,
+  .home-page .dg-label.l4r > span:last-child::before { content: "↑ "; }
+}

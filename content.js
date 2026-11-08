@@ -90,9 +90,9 @@ window.CONTENT = {
       rules: {
         label: 'When it sends a message',
         rows: [
-          ['07:00', 'Morning report', 'Once a day. The first line is what changed most since yesterday.'],
+          ['07:00', 'Morning report', 'Once a day. At most two things to watch for at each place: a cold snap, rain, bad air, strong sun, wind or fog.'],
           ['13:52', 'Alert', 'Rain above 60% within three hours of an outdoor plan on your calendar.'],
-          ['—', 'No message', 'If the temperature changes by less than 2° and no rain is expected, nothing is sent.'],
+          ['—', 'Nothing to say', 'A place with nothing to watch for gets only its icons and temperatures, and no alert during the day.'],
         ],
       },
     },
@@ -295,9 +295,9 @@ window.CONTENT = {
       rules: {
         label: '什么时候发消息',
         rows: [
-          ['07:00', '早报', '每天一次。第一句是和昨天相比变化最大的情况。'],
+          ['07:00', '早报', '每天一次。每个地点最多写两件今天要注意的事：降温、下雨、空气差、紫外线强、大风或雾。'],
           ['13:52', '提醒', '日程里有户外安排，且前后三小时内降水概率超过 60%。'],
-          ['—', '不发', '气温变化不到 2 度、又没有雨，就什么都不发。'],
+          ['—', '不写', '没什么要注意的地点只留图标和气温，白天也不发提醒。'],
         ],
       },
     },
@@ -483,9 +483,9 @@ window.CONTENT = {
       rules: {
         label: '何時發送訊息',
         rows: [
-          ['07:00', '早報', '每天一次。第一句是與昨天相比變化最大的情況。'],
+          ['07:00', '早報', '每天一次。每個地點最多寫兩件今天要注意的事：降溫、下雨、空氣差、紫外線強、大風或霧。'],
           ['13:52', '提醒', '日程中有戶外安排，而前後三小時內降雨概率超過 60%。'],
-          ['—', '不發送', '氣溫變化少於 2 度且沒有雨，就不會發送任何訊息。'],
+          ['—', '不寫', '沒有甚麼要注意的地點只留圖示和氣溫，日間也不發送提醒。'],
         ],
       },
     },
@@ -671,9 +671,9 @@ window.CONTENT = {
       rules: {
         label: 'いつメッセージを送るか',
         rows: [
-          ['07:00', '朝の予報', '一日一回。最初の一文は昨日からいちばん変わった点です。'],
+          ['07:00', '朝の予報', '一日一回。各地点で今日気をつけることを最大 2 つ：冷え込み、雨、大気汚染、強い紫外線、強風、霧。'],
           ['13:52', 'お知らせ', '屋外の予定の前後 3 時間以内に、降水確率が 60% を超えるとき。'],
-          ['—', '送らない', '気温の変化が 2 度未満で雨の予報もなければ、何も送りません。'],
+          ['—', '書かない', '気をつけることがない地点はアイコンと気温だけ。日中のお知らせもありません。'],
         ],
       },
     },

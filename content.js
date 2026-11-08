@@ -400,7 +400,7 @@ window.CONTENT = {
       },
     },
     widgets: {
-      title: "When a picture explains it better, it draws one",
+      title: "If it’s hard to explain, it draws a diagram",
       body: [
         "When a question is easier to explain with a picture, it puts a diagram in the answer and talks me through it.",
         "Tap the diagram and you can drag and tap through it on a phone.",
@@ -787,7 +787,7 @@ window.CONTENT = {
       }
     },
     chronicle: {
-      title: "把聊天里\n说过的事\n记成日记",
+      title: "把聊天里说的事\n记成日记",
       body: [
         "我在聊天里随手说的事，它会拆成一条条记录保存：发生了什么、我怎么看、打算做什么，再按时间排好，存储到数据库中。",
         "过了很久再问某个地方、某个人或某一周，它可以用这些记录回答，每条记录都能点开看到我当时的原话。",
@@ -838,7 +838,7 @@ window.CONTENT = {
       },
     },
     widgets: {
-      title: "用图更好\n解释清楚\n问题的时候，\n它能画图说明",
+      title: "讲不清的地方，\n画张图",
       body: ["问题用图更好解释清楚时，它会在回答里放一张图，再对着图讲。", "点开这张图，可以在手机上拖动、点选。"],
       chat: { avatar: '天', name: '看懂天气预报', sub: '第 4 讲：冷锋' },
       script: [
@@ -1270,7 +1270,7 @@ window.CONTENT = {
       },
     },
     widgets: {
-      title: "用圖更好\n解釋清楚\n問題的時候，\n它會畫圖說明",
+      title: "講不清的地方，\n畫張圖",
       body: ["問題用圖更容易解釋清楚時，它會在回答中放一張圖，再對著圖講解。", "打開這張圖，可以在手機上拖動、點選。"],
       chat: { avatar: '天', name: '看懂天氣預報', sub: '第 4 課：冷鋒' },
       script: [
@@ -1541,7 +1541,7 @@ window.CONTENT = {
       },
     },
     weather: {
-      "title": "今日の天気の\n知っておきたい\nことだけ",
+      "title": "今日の天気の\n要点だけ",
       "body": [
         "毎朝、登録した地点の天気カードを一枚送ります。各地点で今日気をつけることを最大 2 つ：冷え込み、暑さ、雨、空気の悪さ、強い紫外線、強風、霧。気をつけることがない地点はアイコンと気温だけです。",
         "日中に送るのは二つの場合だけです。朝のカードで触れていない雨が近いとき、そして地点の公式の警報が出た・上がった・解除されたとき。"
@@ -1702,7 +1702,7 @@ window.CONTENT = {
       },
     },
     widgets: {
-      title: "図のほうが\n伝わるときは\n図を描いて説明",
+      title: "説明しにくい\nところは図で",
       body: ["図のほうが伝わる質問には、回答に図を一枚入れて、図を見ながら説明します。", "図をタップすると、スマホでドラッグしたりタップしたりできます。"],
       chat: { avatar: '天', name: '天気予報を読む', sub: '第 4 回：寒冷前線' },
       script: [

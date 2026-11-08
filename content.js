@@ -428,7 +428,7 @@ window.CONTENT = {
       },
     },
     built: {
-      title: 'Built and kept running by agents',
+      title: 'I decide, AI writes the code',
       body: [
         'I decide what to build and in what order. Claude Code and Codex agents do the design, the code, the review and the deploy.',
         'Every change is a work item with written acceptance criteria. The agent that wrote the code does not approve it; a different agent checks each criterion in a clean checkout.',
@@ -861,7 +861,7 @@ window.CONTENT = {
       },
     },
     built: {
-      title: '由 agent 开发和维护',
+      title: '我定方向，AI 写代码',
       body: ['做什么、先做什么由我决定。设计、写代码、评审和部署由 Claude Code 和 Codex 的 agent 完成。', '每个改动都是一个事项，写明验收条件。写代码的 agent 不能自己验收，由另一个 agent 在干净的检出里逐条核对。'],
       label: '示例：一个事项',
       demo: {
@@ -1291,7 +1291,7 @@ window.CONTENT = {
       },
     },
     built: {
-      title: '由 agent 開發和維護',
+      title: '我定方向，AI 寫程式',
       body: ['做甚麼、先做甚麼由我決定。設計、編寫程式、評審和部署由 Claude Code 和 Codex 的 agent 完成。', '每項改動都是一個事項，並寫明驗收條件。編寫程式的 agent 不能自行驗收，必須由另一個 agent 在乾淨的檢出中逐條核對。'],
       label: '示例：一個事項',
       demo: {
@@ -1721,7 +1721,7 @@ window.CONTENT = {
       },
     },
     built: {
-      title: 'エージェントが作り、動かし続ける',
+      title: '方向は私が決め、コードは AI が書く',
       body: ['何を、どの順番で作るかは私が決めます。設計、コード、レビュー、デプロイは Claude Code と Codex のエージェントが行います。', '変更はすべて作業項目になり、受け入れ条件が書かれます。コードを書いたエージェントは承認できず、別のエージェントがクリーンな checkout で条件を一つずつ確認します。'],
       label: '例：一つの作業項目',
       demo: {

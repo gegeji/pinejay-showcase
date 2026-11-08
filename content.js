@@ -403,7 +403,7 @@ window.CONTENT = {
       title: "If it’s hard to explain, it draws a diagram",
       body: [
         "When a question is easier to explain with a picture, it puts a diagram in the answer and talks me through it.",
-        "Tap the diagram and you can drag and tap through it on a phone.",
+        "Tapping it opens a page where I can move things around on my phone.",
       ],
       chat: { avatar: 'F', name: 'Reading a forecast', sub: 'Lesson 4, cold fronts' },
       script: [

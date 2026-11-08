@@ -438,3 +438,15 @@ main.home-page { padding-top: 40px; }
   .home-page .dg-label.l1 { padding-bottom: 2px; }
   .home-page .dg-label.l6 { padding-top: 2px; }
 }
+
+/* Same content width on every page: at most 1088px next to the rail, the home page included */
+main { max-width: 1208px; }
+.features, .how { max-width: none; }
+.hero { justify-content: space-between; }
+.hero-text { flex: 0 1 560px; min-width: 0; }
+/* Page titles break where the copy says; CJK titles carry their own line breaks */
+.intro { width: 312px; }
+h1 { white-space: pre-line; text-wrap: pretty; }
+@media (max-width: 1100px) {
+  .intro { width: 100%; }
+}

@@ -624,7 +624,8 @@
     const t = CONTENT[lang];
     const state = h('div', { class: 'state' });
     const value = h('b', {});
-    const range = h('input', { type: 'range', min: '0', max: '72', step: '1', value: '0' });
+    // Stops at the forecast times, so each caption describes exactly the circle on the map.
+    const range = h('input', { type: 'range', min: '0', max: '72', step: '24', value: '0' });
     const pic = h('div', { class: 'ty-pic' });
 
     function draw() {
@@ -633,8 +634,7 @@
       const km = Math.round((Math.hypot(x - TY_CITY[0], y - TY_CITY[1]) * TY_KM) / 10) * 10;
       pic.replaceChildren(tySvg(typhoonMap(w, hr)));
       value.textContent = `${hr} ${w.unit}`;
-      const phase = hr < 12 ? 0 : hr < 36 ? 1 : hr < 60 ? 2 : 3;
-      state.textContent = w.states[phase].replace('{km}', km);
+      state.textContent = w.states[hr / 24].replace('{km}', km);
     }
 
     range.addEventListener('input', draw);

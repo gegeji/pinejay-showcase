@@ -418,3 +418,23 @@ main.home-page { padding-top: 40px; }
   .home-page .dg-label.l1 { padding-bottom: 2px; }
   .home-page .dg-label.l4 { padding-top: 2px; }
 }
+
+/* Home diagram: six numbered steps, each pair of boxes with a request above and a return below */
+.dg .a-return { stroke: #d9a85b; stroke-width: 1.6; fill: none; }
+.home-page h1 { white-space: pre-line; }
+.home-page .dg-label.l6 { left: 184px; top: 240px; }
+.home-page .dg-label.l2 { top: 138px; }
+.home-page .dg-label.l5 { left: 494px; top: 240px; }
+.home-page .dg-label.l3 { top: 152px; }
+.home-page .dg-label.l4r { left: 824px; top: 240px; }
+@media (max-width: 760px) {
+  .home-page .dg-label.l6 { order: 3; }
+  .home-page .dg-label.l5 { order: 5; }
+  .home-page .dg-label.l2 { order: 5; }
+  .home-page .dg-label.l3 { order: 7; }
+  .home-page .dg-label.l4r { order: 7; }
+  .home-page .dg-label.l2, .home-page .dg-label.l3 { padding-bottom: 2px; }
+  .home-page .dg-label.l5, .home-page .dg-label.l4r { padding-top: 2px; }
+  .home-page .dg-label.l1 { padding-bottom: 2px; }
+  .home-page .dg-label.l6 { padding-top: 2px; }
+}

@@ -18,10 +18,10 @@ window.CONTENT = {
     home: {
       "title": "A personal assistant built around me",
       "body": [
-        "Pinejay is a personal assistant I built. I mostly chat with it in Telegram: I jot down what happened today, ask it questions and have it remind me of things.",
-        "I tell it about my day and it keeps a journal it can search months later. In the evening it lists what I said I would do but haven’t. In the morning it tells me what to watch for in today’s weather."
+        "Pinejay is a personal assistant I built. I mostly chat with it in Telegram: I jot down what happened today, ask it questions, or have it remind me of something.",
+        "I tell it about my day and it keeps a journal, so it can find things for me when I need them. In the morning it tells me what to watch for in today’s weather; in the evening it goes over what I said I’d do but haven’t."
       ],
-      "aside": "It isn’t another coding agent, and it doesn’t reimplement an agent’s core. Low-level work such as context caching and context handling changes fast, and each framework has its own ecosystem; one person can hardly keep up. So Pinejay uses the mature Claude and Codex SDKs and builds an abstract interface on top of them. I spend most of my time on the assistant features I want.",
+      "aside": "It isn’t another coding agent, and it isn’t yet another hand-built agent core. Low-level work such as context caching and context handling changes fast, and each framework has its own ecosystem; one developer working alone can hardly keep up. So Pinejay uses the mature Claude and Codex SDKs and builds an abstract interface on top of them. I put most of my effort into the assistant features I want.",
       "chat": {
         "avatar": "P",
         "name": "Pinejay",
@@ -137,7 +137,7 @@ window.CONTENT = {
         [
           "weather",
           "Weather",
-          "A morning report each day on the weather worth watching: a cold snap, rain or bad air."
+          "A morning report each day on the weather worth watching."
         ]
       ],
       "howTitle": "How it works",
@@ -150,8 +150,8 @@ window.CONTENT = {
           },
           " and runs on my own server."
         ],
-        "I talk to Pinejay mostly in a Telegram group. Each topic in the group is handled by its own AI assistant, and each assistant runs in its own sealed-off space (Docker or Apple Container). The keys for Claude and Codex stay on the server; assistants reach them through a bridge the host provides.",
-        "Why not let it run on the whole computer? The assistants run commands and edit files on their own, with wide access. In a sealed-off space, an assistant that makes a mistake, or is misled by malicious text on a web page, can at most break its own space, and the other assistants are unaffected. The cost is that they can’t freely use the computer’s apps and files; the host opens up each thing they need, one at a time."
+        "I talk to Pinejay mostly in a Telegram group. Each topic in the group is handled by its own AI assistant, and each assistant runs in its own sealed-off space (Docker or Apple Container). The API credentials stay on the host; the assistants call the APIs through a gateway and never touch the credentials themselves.",
+        "Why not let it run on the whole computer? The assistants run commands and edit files on their own, with wide access. In a sealed-off space, an assistant that makes a mistake, or is misled by malicious text on a web page, can at most break its own space, and the other assistants are unaffected. The cost is that they can’t freely use the computer’s apps and files; each permission has to be set up separately."
       ],
       "diagram": {
         "you": [
@@ -162,7 +162,7 @@ window.CONTENT = {
         "host": [
           "Always on, on a server",
           "Host",
-          "Passes messages on, keeps the records, publishes diagrams as web pages"
+          "Passes messages on, keeps the records, publishes diagrams as web pages, runs scheduled tasks"
         ],
         "records": [
           "Kept by the host",
@@ -185,6 +185,8 @@ window.CONTENT = {
           "message": "Send a message",
           "toAgent": "To that topic’s assistant",
           "asks": "Calls the model",
+          "returns": "Returns the result",
+          "handsBack": "Hands back the reply and diagram",
           "reply": "Reply, sometimes with a diagram",
           "keeps": "Save"
         }
@@ -463,12 +465,12 @@ window.CONTENT = {
       close: '关闭',
     },
     home: {
-      "title": "高度定制化的私人助手",
+      "title": "一个高度定制化的\n私人助手",
       "body": [
-        "Pinejay 是我自己做的私人助手。我主要在 Telegram 里和它聊天：随手记一笔当天的事，问它问题，让它提醒我。",
-        "我把每天的事随手告诉它，它记进日记，几个月后还能帮我找回来。晚上它列出我这一天说了但还没做的事。早上它告诉我今天的天气要注意什么。"
+        "Pinejay 是我自己做的私人助手。我主要在 Telegram 里和它聊天交互：随手记下当天的事，问它问题，或是让它提醒我什么事情。",
+        "我把每天的事随手告诉它，它记进日记，需要的时候还能帮我找回来。它能早上告诉我今天的天气要注意什么，晚上回顾我这一天说了但还没做的事。"
       ],
-      "aside": "它不是又一个编程智能体，也不自己重写智能体的内核。上下文缓存、上下文操作这类底层实现变化很快，每个框架有各自的生态，一个人很难持续跟进。所以 Pinejay 使用成熟的 Claude SDK 和 Codex SDK，在它们之上实现一层抽象接口。我把时间主要花在我想要的私人助手功能上。",
+      "aside": "它不是又一个编程智能体，也不是再手搓一个智能体的内核。上下文缓存、上下文操作这类底层实现变化很快，每个框架有各自的生态，个人开发者很难高强度持续跟进。所以 Pinejay 使用成熟的 Claude SDK 和 Codex SDK，在它们之上实现一层抽象接口。我把精力主要花在我想要的私人助手功能上。",
       "chat": {
         "avatar": "P",
         "name": "Pinejay",
@@ -564,7 +566,7 @@ window.CONTENT = {
         [
           "chronicle",
           "日记",
-          "在聊天里随手说的事，它记进日记，整理的时候把地方、计划和经历按时间连起来。"
+          "在聊天里随手说的事，它记入日记中。整理的时候把地方、计划和经历按时间连起来。"
         ],
         [
           "review",
@@ -584,7 +586,7 @@ window.CONTENT = {
         [
           "weather",
           "天气",
-          "每天推送一条早报，提醒你今天值得注意的天气情况：降温、下雨或者空气差。"
+          "每天推送一条早报，提醒你今天值得注意的天气情况。"
         ]
       ],
       "howTitle": "技术原理",
@@ -597,8 +599,8 @@ window.CONTENT = {
           },
           " 开发，运行在我自己的服务器上。"
         ],
-        "Pinejay 主要通过 Telegram 群进行交互。Telegram 群里每个话题由一个单独的 AI 助手负责，每个助手在自己的隔离环境（Docker 或者 Apple Container）里运行。调用 Claude 和 Codex 的密钥只留在服务器上，通过主机提供的网桥转接访问。",
-        "为什么不让它直接在整台电脑上运行？这些助手能够自己执行命令、修改文件，拥有很大的访问权限。放在隔离环境里，一个助手即使出错，或者被网页上的恶意文字误导，它最多弄坏自己的环境，也不会影响其他助手。代价是它们不能随手使用电脑上的软件和文件，需要什么由主机一项项开放。"
+        "Pinejay 主要通过 Telegram 群进行交互。Telegram 群里每个话题由一个单独的 AI 智能体助手负责，每个助手在自己的隔离环境（Docker 或者 Apple Container）里运行。API 凭据只保存在主机上，智能体通过网关调用而无需直接接触 API。",
+        "为什么不让它直接在整台电脑上运行？这些助手能够自己执行命令、修改文件，拥有很大的访问权限。放在隔离环境里，一个助手即使出错，或者被网页上的恶意文字误导，它最多弄坏自己的环境，也不会影响其他助手。代价是它们不能随手使用电脑上的软件和文件，需要单独配置权限。"
       ],
       "diagram": {
         "you": [
@@ -609,7 +611,7 @@ window.CONTENT = {
         "host": [
           "一直运行在服务器上",
           "主机",
-          "传递消息，保存记录，把说明图发布成网页"
+          "传递消息，保存记录，把说明图发布成网页，调度定时任务"
         ],
         "records": [
           "由主机保存",
@@ -632,6 +634,8 @@ window.CONTENT = {
           "message": "发消息",
           "toAgent": "交给该话题的智能体",
           "asks": "调用模型",
+          "returns": "返回结果",
+          "handsBack": "交回回复和说明图",
           "reply": "回复，可带说明图",
           "keeps": "保存"
         }
@@ -893,12 +897,12 @@ window.CONTENT = {
       close: '關閉',
     },
     home: {
-      "title": "度身訂造的私人助理",
+      "title": "一個度身訂造的\n私人助理",
       "body": [
-        "Pinejay 是我自己做的私人助理。我主要在 Telegram 裡和它聊天：隨手記下當天的事，問它問題，讓它提醒我。",
-        "我把每天的事隨手告訴它，它記進日記，幾個月後還能幫我找回來。晚上它列出我這一天說了但還沒做的事。早上它告訴我今天的天氣要注意甚麼。"
+        "Pinejay 是我自己做的私人助理。我主要在 Telegram 裡和它聊天：隨手記下當天的事，問它問題，或者讓它提醒我一些事情。",
+        "我把每天的事隨手告訴它，它記進日記，需要的時候還能幫我找回來。它會在早上告訴我今天的天氣要注意甚麼，晚上回顧我這一天說了但還沒做的事。"
       ],
-      "aside": "它不是又一個編程智能體，也不自己重寫智能體的核心。上下文快取、上下文操作這類底層實現變化很快，每個框架都有各自的生態，一個人很難持續跟進。所以 Pinejay 使用成熟的 Claude SDK 和 Codex SDK，在它們之上實現一層抽象介面。我把時間主要花在我想要的私人助理功能上。",
+      "aside": "它不是又一個編程智能體，也不是再手寫一個智能體的核心。上下文快取、上下文操作這類底層實現變化很快，每個框架都有各自的生態，個人開發者很難長期緊貼。所以 Pinejay 使用成熟的 Claude SDK 和 Codex SDK，在它們之上實現一層抽象介面。我把精力主要花在我想要的私人助理功能上。",
       "chat": {
         "avatar": "P",
         "name": "Pinejay",
@@ -994,7 +998,7 @@ window.CONTENT = {
         [
           "chronicle",
           "日記",
-          "在聊天裡隨手說的事，它記進日記，整理的時候把地方、計劃和經歷按時間串起來。"
+          "在聊天裡隨手說的事，它記入日記。整理的時候把地方、計劃和經歷按時間串起來。"
         ],
         [
           "review",
@@ -1014,7 +1018,7 @@ window.CONTENT = {
         [
           "weather",
           "天氣",
-          "每天推送一則早報，提醒你今天值得注意的天氣：降溫、下雨或空氣差。"
+          "每天推送一則早報，提醒你今天值得注意的天氣。"
         ]
       ],
       "howTitle": "技術原理",
@@ -1027,8 +1031,8 @@ window.CONTENT = {
           },
           " 為基礎開發，運行在我自己的伺服器上。"
         ],
-        "Pinejay 主要透過 Telegram 群組互動。群組裡每個話題由一個獨立的 AI 助理負責，每個助理在自己的隔離環境（Docker 或 Apple Container）裡運行。呼叫 Claude 和 Codex 的金鑰只留在伺服器上，經主機提供的網橋轉接使用。",
-        "為甚麼不讓它直接在整部電腦上運行？這些助理能自己執行指令、修改檔案，權限很大。放在隔離環境裡，一個助理即使出錯，或被網頁上的惡意文字誤導，最多弄壞自己的環境，也不會影響其他助理。代價是它們不能隨手使用電腦上的軟件和檔案，需要甚麼由主機逐項開放。"
+        "Pinejay 主要透過 Telegram 群組互動。群組裡每個話題由一個獨立的 AI 智能體助理負責，每個助理在自己的隔離環境（Docker 或 Apple Container）裡運行。API 憑證只保存在主機上，智能體經網關呼叫，不會直接接觸 API 憑證。",
+        "為甚麼不讓它直接在整部電腦上運行？這些助理能自己執行指令、修改檔案，權限很大。放在隔離環境裡，一個助理即使出錯，或被網頁上的惡意文字誤導，最多弄壞自己的環境，也不會影響其他助理。代價是它們不能隨手使用電腦上的軟件和檔案，需要逐項設定權限。"
       ],
       "diagram": {
         "you": [
@@ -1039,7 +1043,7 @@ window.CONTENT = {
         "host": [
           "一直在伺服器上運行",
           "主機",
-          "傳遞訊息，保存紀錄，把說明圖發布成網頁"
+          "傳遞訊息，保存紀錄，把說明圖發布成網頁，排程定時任務"
         ],
         "records": [
           "由主機保存",
@@ -1062,6 +1066,8 @@ window.CONTENT = {
           "message": "發訊息",
           "toAgent": "交給該話題的智能體",
           "asks": "呼叫模型",
+          "returns": "返回結果",
+          "handsBack": "交回回覆和說明圖",
           "reply": "回覆，可附說明圖",
           "keeps": "保存"
         }
@@ -1323,12 +1329,12 @@ window.CONTENT = {
       close: '閉じる',
     },
     home: {
-      "title": "自分のために作り込んだアシスタント",
+      "title": "自分のために作り込んだ\nアシスタント",
       "body": [
-        "Pinejay は自分で作ったパーソナルアシスタントです。主に Telegram で話しかけています。その日のことをメモしたり、質問したり、リマインドを頼んだりします。",
-        "その日のことを話すと日記に残してくれて、何か月たっても探し出せます。夜は、その日言ったのにまだやっていないことを挙げてくれます。朝は、今日の天気で気をつけることを教えてくれます。"
+        "Pinejay は自分で作ったパーソナルアシスタントです。主に Telegram でやり取りしています。その日のことをメモしたり、質問したり、何かをリマインドしてもらったりします。",
+        "その日のことを話すと日記に残してくれて、必要なときに探し出してくれます。朝は今日の天気で気をつけることを教えてくれて、夜はその日言ったのにまだやっていないことをふりかえります。"
       ],
-      "aside": "新しいコーディングエージェントではなく、エージェントの中核を自分で作り直すものでもありません。コンテキストのキャッシュや操作といった低レベルの実装は変化が速く、フレームワークごとに独自のエコシステムがあり、一人では追いきれません。そこで Pinejay は成熟した Claude SDK と Codex SDK を使い、その上に抽象化したインターフェースを作っています。時間は主に、自分が欲しいアシスタント機能に使っています。",
+      "aside": "新しいコーディングエージェントではなく、エージェントの中核を一から作り直すものでもありません。コンテキストのキャッシュや操作といった低レベルの実装は変化が速く、フレームワークごとに独自のエコシステムがあり、個人の開発者が追い続けるのは困難です。そこで Pinejay は成熟した Claude SDK と Codex SDK を使い、その上に抽象化したインターフェースを作っています。力は主に、自分が欲しいアシスタント機能に注いでいます。",
       "chat": {
         "avatar": "P",
         "name": "Pinejay",
@@ -1424,7 +1430,7 @@ window.CONTENT = {
         [
           "chronicle",
           "日記",
-          "チャットで何気なく話したことを日記に残し、整理するときに場所・予定・出来事を時系列でつなげます。"
+          "チャットで何気なく話したことを日記に残します。整理するときに場所・予定・出来事を時系列でつなげます。"
         ],
         [
           "review",
@@ -1444,7 +1450,7 @@ window.CONTENT = {
         [
           "weather",
           "天気",
-          "毎朝の天気レポートで、今日気をつけたいこと（冷え込み、雨、空気の悪さ）を知らせます。"
+          "毎朝の天気レポートで、今日気をつけたい天気を知らせます。"
         ]
       ],
       "howTitle": "しくみ",
@@ -1457,8 +1463,8 @@ window.CONTENT = {
           },
           " をもとに開発し、自分のサーバーで動かしています。"
         ],
-        "Pinejay とは主に Telegram のグループでやり取りします。グループのトピックごとに専用の AI アシスタントがいて、それぞれ自分の隔離環境（Docker または Apple Container）で動きます。Claude と Codex を呼び出すキーはサーバーにだけ置き、ホストのブリッジ経由で使います。",
-        "なぜパソコン全体で動かさないのか。アシスタントは自分でコマンドを実行し、ファイルを書き換えられるので、権限が大きいからです。隔離環境の中なら、ミスをしたり、Web ページの悪意ある文章にだまされたりしても、壊れるのはそのアシスタントの環境だけで、ほかのアシスタントには影響しません。その代わり、パソコンのアプリやファイルは自由に使えず、必要なものはホストが一つずつ開放します。"
+        "Pinejay とは主に Telegram のグループでやり取りします。グループのトピックごとに専用の AI エージェントがいて、それぞれ自分の隔離環境（Docker または Apple Container）で動きます。API の認証情報はホストにだけ置き、エージェントはゲートウェイ経由で呼び出すので、認証情報に直接触れません。",
+        "なぜパソコン全体で動かさないのか。アシスタントは自分でコマンドを実行し、ファイルを書き換えられるので、権限が大きいからです。隔離環境の中なら、ミスをしたり、Web ページの悪意ある文章にだまされたりしても、壊れるのはそのアシスタントの環境だけで、ほかのアシスタントには影響しません。その代わり、パソコンのアプリやファイルは自由に使えず、権限を個別に設定する必要があります。"
       ],
       "diagram": {
         "you": [
@@ -1469,7 +1475,7 @@ window.CONTENT = {
         "host": [
           "サーバーで常時稼働",
           "ホスト",
-          "メッセージを渡し、記録を保存し、図解を Web ページとして公開"
+          "メッセージを渡し、記録を保存し、図解を Web ページとして公開し、定期タスクを実行"
         ],
         "records": [
           "ホストが保管",
@@ -1492,6 +1498,8 @@ window.CONTENT = {
           "message": "メッセージを送る",
           "toAgent": "そのトピックのエージェントへ",
           "asks": "モデルを呼ぶ",
+          "returns": "結果を返す",
+          "handsBack": "返信と図解を戻す",
           "reply": "返信（図解つきのことも）",
           "keeps": "保存"
         }

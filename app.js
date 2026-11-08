@@ -496,8 +496,10 @@
     const arrows = `
       <line x1="182" y1="196" x2="272" y2="196" class="a-main"/><path d="M268 191 L276 196 L268 201" class="a-main"/>
       <line x1="278" y1="232" x2="188" y2="232" class="a-reply"/><path d="M192 227 L184 232 L192 237" class="a-reply"/>
-      <line x1="492" y1="214" x2="582" y2="214" class="a-main"/><path d="M578 209 L586 214 L578 219" class="a-main"/>
-      <line x1="822" y1="214" x2="912" y2="214" class="a-model"/><path d="M908 209 L916 214 L908 219" class="a-model"/>
+      <line x1="492" y1="196" x2="582" y2="196" class="a-main"/><path d="M578 191 L586 196 L578 201" class="a-main"/>
+      <line x1="588" y1="232" x2="498" y2="232" class="a-reply"/><path d="M502 227 L494 232 L502 237" class="a-reply"/>
+      <line x1="822" y1="196" x2="912" y2="196" class="a-model"/><path d="M908 191 L916 196 L908 201" class="a-model"/>
+      <line x1="918" y1="232" x2="828" y2="232" class="a-return"/><path d="M832 227 L824 232 L832 237" class="a-return"/>
       <line x1="385" y1="262" x2="385" y2="334" class="a-keep"/>`;
     main.append(h('section', { class: 'dg-scroll' },
       h('div', { class: 'dg', role: 'img', 'aria-label': [d.you[1], d.host[1], d.group, d.model[1]].join(', ') },
@@ -510,9 +512,11 @@
           h('div', { class: 'cap' }, d.group),
           d.agents.map((a) => h('div', { class: 'dg-box agent' }, h('div', { class: 't' }, a), h('div', { class: 'd' }, d.agentDesc)))),
         label('l1', '1', d.arrows.message),
-        label('l4 reply', '4', d.arrows.reply),
+        label('l6 reply', '6', d.arrows.reply),
         label('l2 stack', '2', d.arrows.toAgent),
+        label('l5 reply', '5', d.arrows.handsBack),
         label('l3 stack model', '3', d.arrows.asks),
+        label('l4r model', '4', d.arrows.returns),
         h('div', { class: 'dg-label lk' }, d.arrows.keeps))));
     return () => { stop(); main.classList.remove('stacked', 'home-page'); };
   }

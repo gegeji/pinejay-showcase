@@ -97,7 +97,7 @@
   // Small weather icons for the card: sun, moon, cloud, rain.
   const WX = {
     sun: '<circle cx="8" cy="8" r="3.2" fill="#F2A93B"/><g stroke="#F2A93B" stroke-width="1.4" stroke-linecap="round"><path d="M8 1.2v1.8M8 13v1.8M1.2 8h1.8M13 8h1.8M3.2 3.2l1.3 1.3M11.5 11.5l1.3 1.3M3.2 12.8l1.3-1.3M11.5 4.5l1.3-1.3"/></g>',
-    moon: '<path d="M10.8 11.6A5 5 0 0 1 6.4 2.6a5 5 0 1 0 6.9 6.9 5 5 0 0 1-2.5 2.1Z" fill="#8A94A6"/>',
+    moon: '<circle cx="7.5" cy="8.5" r="5.5" fill="#6B7486"/><circle cx="10.4" cy="6.2" r="4.6" fill="#fff"/>',
     cloud: '<path d="M4.6 12.4h7a2.8 2.8 0 0 0 .3-5.6 4 4 0 0 0-7.6-.9 2.9 2.9 0 0 0 .3 6.5Z" fill="#9AA3AE"/>',
     rain: '<path d="M4.6 9.6h7a2.6 2.6 0 0 0 .3-5.2 3.8 3.8 0 0 0-7.2-.8 2.7 2.7 0 0 0-.1 6Z" fill="#7C8796"/><g stroke="#3B82F6" stroke-width="1.4" stroke-linecap="round"><path d="M5.5 11.6l-.8 2M8.5 11.6l-.8 2M11.5 11.6l-.8 2"/></g>',
   };

@@ -21,7 +21,7 @@ window.CONTENT = {
         "Pinejay is a personal assistant I built. I mostly chat with it in Telegram: I jot down what happened today, ask it questions, or have it remind me of something.",
         "I tell it about my day and it keeps a journal, so it can find things for me when I need them. In the morning it tells me what to watch for in today’s weather; in the evening it goes over what I said I’d do but haven’t."
       ],
-      "aside": "It isn’t another coding agent, and it isn’t yet another hand-built agent core. Low-level work such as context caching and context handling changes fast, and each framework has its own ecosystem; one developer working alone can hardly keep up. So Pinejay uses the mature Claude and Codex SDKs and builds an abstract interface on top of them. I put most of my effort into the assistant features I want.",
+      "aside": "It isn’t another coding agent, and it isn’t an agent core built from scratch. Low-level work such as context caching and context handling changes fast, and each framework has its own ecosystem; one developer working alone can hardly keep up. So Pinejay uses the mature Claude and Codex SDKs and builds an abstract interface on top of them. I put most of my effort into the assistant features I want.",
       "chat": {
         "avatar": "P",
         "name": "Pinejay",
@@ -150,7 +150,7 @@ window.CONTENT = {
           },
           " and runs on my own server."
         ],
-        "I talk to Pinejay mostly in a Telegram group. Each topic in the group is handled by its own AI assistant, and each assistant runs in its own sealed-off space (Docker or Apple Container). The API credentials stay on the host; the assistants call the APIs through a gateway and never touch the credentials themselves.",
+        "I talk to Pinejay mostly in a Telegram group. Each topic in the group is handled by its own AI assistant, and each assistant runs in its own sealed-off space (Docker or Apple Container). The API credentials stay on the host; the assistants call the APIs through a gateway and never touch the sensitive credentials themselves.",
         "Why not let it run on the whole computer? The assistants run commands and edit files on their own, with wide access. In a sealed-off space, an assistant that makes a mistake, or is misled by malicious text on a web page, can at most break its own space, and the other assistants are unaffected. The cost is that they can’t freely use the computer’s apps and files; each permission has to be set up separately."
       ],
       "diagram": {
@@ -470,7 +470,7 @@ window.CONTENT = {
         "Pinejay 是我自己做的私人助手。我主要在 Telegram 里和它聊天交互：随手记下当天的事，问它问题，或是让它提醒我什么事情。",
         "我把每天的事随手告诉它，它记进日记，需要的时候还能帮我找回来。它能早上告诉我今天的天气要注意什么，晚上回顾我这一天说了但还没做的事。"
       ],
-      "aside": "它不是又一个编程智能体，也不是再手搓一个智能体的内核。上下文缓存、上下文操作这类底层实现变化很快，每个框架有各自的生态，个人开发者很难高强度持续跟进。所以 Pinejay 使用成熟的 Claude SDK 和 Codex SDK，在它们之上实现一层抽象接口。我把精力主要花在我想要的私人助手功能上。",
+      "aside": "它不是又一个编程智能体，也不是从零手搓的一个智能体内核。上下文缓存、上下文操作这类底层实现变化很快，每个框架有各自的生态，个人开发者很难高强度持续跟进。所以 Pinejay 使用成熟的 Claude SDK 和 Codex SDK，在它们之上实现一层抽象接口。我把精力主要花在我想要的私人助手功能上。",
       "chat": {
         "avatar": "P",
         "name": "Pinejay",
@@ -599,7 +599,7 @@ window.CONTENT = {
           },
           " 开发，运行在我自己的服务器上。"
         ],
-        "Pinejay 主要通过 Telegram 群进行交互。Telegram 群里每个话题由一个单独的 AI 智能体助手负责，每个助手在自己的隔离环境（Docker 或者 Apple Container）里运行。API 凭据只保存在主机上，智能体通过网关调用而无需直接接触 API。",
+        "Pinejay 主要通过 Telegram 群进行交互。Telegram 群里每个话题由一个单独的 AI 智能体助手负责，每个助手在自己的隔离环境（Docker 或者 Apple Container）里运行。API 凭据只保存在主机上，智能体通过网关调用而无需直接接触敏感凭据。",
         "为什么不让它直接在整台电脑上运行？这些助手能够自己执行命令、修改文件，拥有很大的访问权限。放在隔离环境里，一个助手即使出错，或者被网页上的恶意文字误导，它最多弄坏自己的环境，也不会影响其他助手。代价是它们不能随手使用电脑上的软件和文件，需要单独配置权限。"
       ],
       "diagram": {
@@ -902,7 +902,7 @@ window.CONTENT = {
         "Pinejay 是我自己做的私人助理。我主要在 Telegram 裡和它聊天：隨手記下當天的事，問它問題，或者讓它提醒我一些事情。",
         "我把每天的事隨手告訴它，它記進日記，需要的時候還能幫我找回來。它會在早上告訴我今天的天氣要注意甚麼，晚上回顧我這一天說了但還沒做的事。"
       ],
-      "aside": "它不是又一個編程智能體，也不是再手寫一個智能體的核心。上下文快取、上下文操作這類底層實現變化很快，每個框架都有各自的生態，個人開發者很難長期緊貼。所以 Pinejay 使用成熟的 Claude SDK 和 Codex SDK，在它們之上實現一層抽象介面。我把精力主要花在我想要的私人助理功能上。",
+      "aside": "它不是又一個編程智能體，也不是從零手寫的一個智能體核心。上下文快取、上下文操作這類底層實現變化很快，每個框架都有各自的生態，個人開發者很難長期緊貼。所以 Pinejay 使用成熟的 Claude SDK 和 Codex SDK，在它們之上實現一層抽象介面。我把精力主要花在我想要的私人助理功能上。",
       "chat": {
         "avatar": "P",
         "name": "Pinejay",
@@ -1031,7 +1031,7 @@ window.CONTENT = {
           },
           " 為基礎開發，運行在我自己的伺服器上。"
         ],
-        "Pinejay 主要透過 Telegram 群組互動。群組裡每個話題由一個獨立的 AI 智能體助理負責，每個助理在自己的隔離環境（Docker 或 Apple Container）裡運行。API 憑證只保存在主機上，智能體經網關呼叫，不會直接接觸 API 憑證。",
+        "Pinejay 主要透過 Telegram 群組互動。群組裡每個話題由一個獨立的 AI 智能體助理負責，每個助理在自己的隔離環境（Docker 或 Apple Container）裡運行。API 憑證只保存在主機上，智能體經網關呼叫，不會直接接觸敏感憑證。",
         "為甚麼不讓它直接在整部電腦上運行？這些助理能自己執行指令、修改檔案，權限很大。放在隔離環境裡，一個助理即使出錯，或被網頁上的惡意文字誤導，最多弄壞自己的環境，也不會影響其他助理。代價是它們不能隨手使用電腦上的軟件和檔案，需要逐項設定權限。"
       ],
       "diagram": {

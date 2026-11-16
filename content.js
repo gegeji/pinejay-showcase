@@ -7,6 +7,8 @@ window.CONTENT = {
     htmlLang: 'en',
     ui: {
       tagline: "A personal assistant, used mostly through Telegram",
+      tryPanel: 'Try it yourself',
+      tryPanelSub: 'Demo mode, data generated in your browser',
       nav: {"home": "Home", "chronicle": "Journal", "review": "Review", "widgets": "Interactive diagrams", "course": "Course", "weather": "Weather", "built": "How it's built"},
       replay: 'Replay',
       pause: 'Pause',
@@ -438,6 +440,8 @@ window.CONTENT = {
     htmlLang: 'zh-CN',
     ui: {
       tagline: "Telegram 里的私人助手",
+      tryPanel: '亲手试试',
+      tryPanelSub: '演示模式，数据由浏览器本地生成',
       nav: {"home": "首页", "chronicle": "日记", "review": "回顾", "widgets": "交互式说明图", "course": "课程", "weather": "天气", "built": "开发方式"},
       replay: '从头播放',
       pause: '暂停',
@@ -855,6 +859,8 @@ window.CONTENT = {
     htmlLang: 'zh-HK',
     ui: {
       tagline: "Telegram 裡的私人助理",
+      tryPanel: '親手試試',
+      tryPanelSub: '示範模式，資料由瀏覽器本地生成',
       nav: {"home": "首頁", "chronicle": "日記", "review": "回顧", "widgets": "互動說明圖", "course": "課程", "weather": "天氣", "built": "開發方式"},
       replay: '從頭播放',
       pause: '暫停',
@@ -1272,6 +1278,8 @@ window.CONTENT = {
     htmlLang: 'ja',
     ui: {
       tagline: "Telegram で使うパーソナルアシスタント",
+      tryPanel: '触ってみる',
+      tryPanelSub: 'ブラウザ内で生成したデータで動くデモ',
       nav: {"home": "ホーム", "chronicle": "日記", "review": "ふりかえり", "widgets": "操作できる図解", "course": "コース", "weather": "天気", "built": "作り方"},
       replay: '最初から',
       pause: '一時停止',

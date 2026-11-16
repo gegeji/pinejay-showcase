@@ -1,0 +1,1495 @@
+(function () {
+  'use strict';
+
+  // A fully fake Pinejay panel. Everything runs in the browser; state lives in localStorage.
+  // Copy is in copy.<lang>.js; this file holds structure, seed data and rendering.
+
+  const STORE = 'pinejay-panel-demo-v2';
+  const LANG_KEY = 'pinejay-showcase-lang'; // shared with the showcase site
+  const LANGS = [['en', 'EN'], ['zh-CN', '简体'], ['zh-HK', '繁體'], ['ja', '日本語']];
+  const PAGES = ['chats', 'journal', 'review', 'diagrams', 'course', 'weather'];
+  const C = window.PANEL_COPY;
+  for (let i = LANGS.length - 1; i >= 0; i -= 1) if (!C[LANGS[i][0]]) LANGS.splice(i, 1);
+
+  // ── Structure that does not depend on language ────────────────────────────
+
+  const COURSES = {
+    forecast: { chapters: [2, 2, 2], seed: { status: 'learning', pos: 2, last: 'Nov 20' } },
+    linalg: { chapters: [3, 3, 2], seed: { status: 'learning', pos: 5, last: 'Nov 21' } },
+    japanese: { chapters: [3], seed: { status: 'waiting', pos: 0, last: null } },
+  };
+  const COURSE_ORDER = ['forecast', 'linalg', 'japanese'];
+
+  // Side questions a course can answer in this demo. Latin keys match whole words, others match anywhere.
+  const SIDE_KEYS = {
+    forecast: {
+      umbrella: ['umbrella', 'jacket', 'raincoat', '30%', '伞', '雨衣', '傘', '雨具', 'かさ', 'カッパ'],
+      humidity: ['humid', 'humidity', '湿度', '濕度', '湿気'],
+      typhoon: ['typhoon', 'typhoons', '台风', '颱風', '台風'],
+      feels: ['feels', 'feel like', 'wind chill', '体感', '體感'],
+    },
+    linalg: {
+      trace: ['trace', '迹', '跡', 'トレース'],
+      det: ['determinant', 'invert', 'inverse', 'invertible', '行列式', '可逆', '逆矩阵', '逆矩陣', '逆行列'],
+      complex: ['complex', 'imaginary', '复数', '複數', '複素', '虚数', '虛數'],
+      repeated: ['repeat', 'repeats', 'repeated', 'double', '重根', '重複', '重解', '重复'],
+    },
+    japanese: {
+      te: ['te-form', 'te form', 'て形', 'てけい', 'て形'],
+      polite: ['polite', 'teacher', 'boss', '礼貌', '禮貌', '老师', '老師', '先生', '丁寧', '敬語', '敬语'],
+    },
+  };
+
+  // Journal: each message is what was said in chat; records point at a span of it.
+  const MESSAGES = [
+    { id: 'm1', date: '2026-09-14', time: '10:12', place: 'seabright', people: [], spans: 2 },
+    { id: 'm2', date: '2026-09-27', time: '21:40', place: 'seabright', people: ['zhou'], spans: 4 },
+    { id: 'm3', date: '2026-09-28', time: '18:05', place: 'seabright', people: ['zhou'], spans: 2 },
+    { id: 'm4', date: '2026-10-02', time: '22:15', place: 'seabright', people: [], spans: 2 },
+    { id: 'm5', date: '2026-11-04', time: '19:30', place: 'eastlake', people: [], spans: 2 },
+    { id: 'm6', date: '2026-11-08', time: '20:40', place: 'southport', people: [], spans: 3 },
+    { id: 'm7', date: '2026-11-12', time: '18:50', place: 'eastlake', people: ['zhou'], spans: 2 },
+    { id: 'm8', date: '2026-11-18', time: '17:20', place: null, people: ['lin'], spans: 2 },
+    { id: 'm9', date: '2026-11-19', time: '21:05', place: 'southport', people: ['zhou'], spans: 2 },
+  ];
+  // [record id, message id, span index, kind]
+  const RECORDS = [
+    ['r1', 'm1', 0, 'plan'], ['r2', 'm1', 1, 'event'],
+    ['r3', 'm2', 0, 'event'], ['r4', 'm2', 1, 'event'], ['r5', 'm2', 2, 'thought'], ['r6', 'm2', 3, 'event'],
+    ['r7', 'm3', 0, 'event'], ['r8', 'm3', 1, 'event'],
+    ['r9', 'm4', 0, 'plan'], ['r10', 'm4', 1, 'thought'],
+    ['r11', 'm5', 0, 'event'], ['r12', 'm5', 1, 'thought'],
+    ['r13', 'm6', 0, 'event'], ['r14', 'm6', 1, 'plan'], ['r15', 'm6', 2, 'thought'],
+    ['r16', 'm7', 0, 'event'], ['r17', 'm7', 1, 'thought'],
+    ['r18', 'm8', 0, 'event'], ['r19', 'm8', 0, 'plan'], ['r20', 'm8', 1, 'thought'],
+    ['r21', 'm9', 0, 'event'], ['r22', 'm9', 1, 'plan'],
+  ].map(([id, msg, span, kind]) => ({ id, msg, span, kind }));
+  const JOURNAL_PLACES = ['seabright', 'southport', 'eastlake'];
+  const JOURNAL_PEOPLE = ['lin', 'zhou'];
+
+  const REVIEW_SEED = ['ferry', 'section3', 'pace', 'umbrella'];
+  const REVIEW_POOL = ['southport'];
+  const REVIEW_CAT = { ferry: 'unfinished', section3: 'unfinished', pace: 'conflict', umbrella: 'recurring', southport: 'conflict' };
+  const REMIND_TIMES = ['tom9', 'tom21', 'sat10', 'mon9'];
+
+  const WEATHER_PLACES = ['northbank', 'eastlake', 'southport', 'riverside', 'seabright'];
+  const ALERT_TYPES = ['cold', 'rain', 'air', 'uv', 'wind', 'fog'];
+  // Per place: icons for day and night, and the things worth watching today, most important first.
+  const WEATHER = {
+    northbank: { icons: ['cloud', 'cloud'], watch: ['cold', 'air', 'wind'] },
+    eastlake: { icons: ['rain', 'rain'], watch: ['rain', 'fog'] },
+    southport: { icons: ['sun', 'moon'], watch: [] },
+    riverside: { icons: ['cloud', 'rain'], watch: ['rain', 'wind', 'cold'] },
+    seabright: { icons: ['sun', 'cloud'], watch: ['wind', 'fog', 'uv'] },
+  };
+
+  // ── State ─────────────────────────────────────────────────────────────────
+
+  function seed() {
+    const courses = {};
+    for (const id of COURSE_ORDER) {
+      const s = COURSES[id].seed;
+      const logs = {};
+      if (s.status !== 'waiting') for (let i = 0; i <= s.pos; i += 1) logs[i] = [{ k: 'lesson' }];
+      courses[id] = { status: s.status, pos: s.pos, view: s.pos, last: s.last, logs, used: {} };
+    }
+    courses.forecast.logs[2].push({ k: 'side', key: 'ride', text: null });
+    courses.linalg.logs[1].push({ k: 'side', key: 'det', text: null });
+    courses.linalg.logs[4].push({ k: 'alt' }, { k: 'side', key: 'trace', text: null });
+    courses.linalg.used[4] = { alt: true };
+    const items = {};
+    REVIEW_SEED.forEach((id) => { items[id] = { st: 'open' }; });
+    return {
+      v: 2,
+      chat: { sent: [], records: [] },
+      course: { open: null, mode: 'map', filter: 'all', courses },
+      journal: { q: '', chip: null, open: 'r4' },
+      review: { order: REVIEW_SEED.slice(), items, run: null },
+      diagrams: { hr: 0 },
+      weather: { follow: ['northbank', 'eastlake', 'southport'], alerts: Object.fromEntries(ALERT_TYPES.map((t) => [t, t !== 'uv'])) },
+    };
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORE);
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s && s.v === 2) return s;
+      }
+    } catch (e) { /* storage blocked or broken: start fresh */ }
+    return seed();
+  }
+
+  let S = load();
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { /* ignore */ }
+  }
+
+  let lang = pickLang();
+  function pickLang() {
+    const fromUrl = new URLSearchParams(location.search).get('lang');
+    if (fromUrl && C[fromUrl]) return fromUrl;
+    try {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved && C[saved]) return saved;
+    } catch (e) { /* ignore */ }
+    return 'en';
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  function h(tag, attrs, ...children) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === undefined || v === null || v === false) continue;
+      if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const c of children.flat()) {
+      if (c === null || c === undefined || c === false) continue;
+      el.append(c instanceof Node ? c : document.createTextNode(String(c)));
+    }
+    return el;
+  }
+
+  function svgEl(markup, vb, cls) {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `<svg viewBox="${vb}" class="${cls || ''}" aria-hidden="true" focusable="false">${markup}</svg>`;
+    return wrap.firstChild;
+  }
+
+  const ICONS = {
+    chats: '<path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4 3.5V16H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/>',
+    course: '<path d="M4 6.5 12 3l8 3.5-8 3.5-8-3.5Z"/><path d="M7 8.3v5.2c0 1.4 2.2 2.8 5 2.8s5-1.4 5-2.8V8.3"/><path d="M20 6.5v5"/>',
+    journal: '<path d="M7 4h11v13a3 3 0 0 1-3 3H6a2 2 0 0 1-2-2v-1h11"/><path d="M7 4a2 2 0 0 0-2 2v11"/><path d="M10 9h5M10 12.5h5"/>',
+    review: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="m9 13 2 2 4-4"/>',
+    diagrams: '<path d="M4 20V4"/><path d="M4 20h16"/><path d="m7 15 4-5 3 3 5-6"/>',
+    weather: '<circle cx="9" cy="8" r="3"/><path d="M9 2v1.5M3 8h1.5M4.8 3.8l1 1M13.2 3.8l-1 1"/><path d="M8.5 19h8a3.5 3.5 0 0 0 .2-7 4.5 4.5 0 0 0-8.4.8A3.1 3.1 0 0 0 8.5 19Z"/>',
+    back: '<path d="m15 18-6-6 6-6"/>',
+    send: '<path d="M12 19V5M5 12l7-7 7 7"/>',
+    x: '<path d="M6 6l12 12M18 6 6 18"/>',
+    check: '<path d="m5 12 5 5 9-10"/>',
+  };
+  function icon(name, cls) {
+    return svgEl(`<g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</g>`, '0 0 24 24', 'ic ' + (cls || ''));
+  }
+
+  function L() { return C[lang]; }
+
+  function fmt(str, vars) {
+    return String(str).replace(/\{(\w+)\}/g, (_, k) => (vars[k] !== undefined ? vars[k] : ''));
+  }
+
+  function fmtDate(iso) {
+    const [, m, d] = iso.split('-').map(Number);
+    return L().date(m, d);
+  }
+
+  function weekOf(iso) {
+    const d = new Date(iso + 'T12:00:00Z');
+    const dow = (d.getUTCDay() + 6) % 7; // Monday = 0
+    d.setUTCDate(d.getUTCDate() - dow);
+    return d.toISOString().slice(0, 10);
+  }
+
+  let toastTimer = null;
+  function toast(text) {
+    const el = document.getElementById('toast');
+    el.textContent = text;
+    el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.hidden = true; }, 2200);
+  }
+
+  // ── Motion ────────────────────────────────────────────────────────────────
+  // New messages appear in order: the user's bubble slides in, then a typing
+  // indicator, then the reply rises in. Controls are locked while a reply is pending.
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const seen = {};
+  let animNext = null; // view key whose next render should animate its new messages
+  let animMap = null; // { id, adv: previous position } or { id, branch: 'i-j' }
+  let justAdded = null; // weather place that was just added
+  let busy = false;
+  let seq = 0;
+  const LOCK = '.actions button, .actions input, .chat-foot button, .chat-foot input, .choices button, .suggest button, .r-actions button, .remind-menu button, .wx-places button, .wx-places select, .toggles input, [data-k="rerun"]';
+  const wait = (ms) => new Promise((res) => setTimeout(res, ms));
+
+  function setBusy(on) {
+    busy = on;
+    document.body.classList.toggle('busy', on);
+    document.querySelectorAll(LOCK).forEach((el) => {
+      if (on) { if (!el.disabled) { el.disabled = true; el.dataset.locked = '1'; } }
+      else if (el.dataset.locked) { el.disabled = false; delete el.dataset.locked; }
+    });
+  }
+
+  function typingDelay(node) {
+    if (reduceMotion.matches) return 150;
+    const len = (node.textContent || '').length;
+    return Math.max(600, Math.min(1400, 450 + len * 7));
+  }
+
+  function scrollIntoBox(node, box) {
+    const behavior = reduceMotion.matches ? 'auto' : 'smooth';
+    if (box && box.scrollHeight > box.clientHeight + 2 && getComputedStyle(box).overflowY !== 'visible') {
+      box.scrollTo({ top: node.offsetTop - box.offsetTop - box.clientHeight + node.offsetHeight + 16, behavior });
+    } else {
+      const r = node.getBoundingClientRect();
+      const foot = document.querySelector('.cd-lesson .actions, .chat-foot');
+      const limit = window.innerHeight - (foot ? foot.getBoundingClientRect().height : 0) - (window.innerWidth <= 760 ? 70 : 10);
+      if (r.bottom > limit) window.scrollTo({ top: window.scrollY + r.bottom - limit + 12, behavior });
+    }
+  }
+
+  // Compares the messages in `container` with the last render of the same view and plays the new ones.
+  function trackStream(viewKey, container, box) {
+    const nodes = [...container.querySelectorAll('[data-key]')];
+    const prev = seen[viewKey];
+    seen[viewKey] = new Set(nodes.map((n) => n.dataset.key));
+    if (!prev || animNext !== viewKey) return;
+    animNext = null;
+    const fresh = nodes.filter((n) => !prev.has(n.dataset.key));
+    if (!fresh.length) return;
+    fresh.forEach((n) => n.classList.add('pending'));
+    const my = ++seq;
+    setBusy(true);
+    (async () => {
+      for (const n of fresh) {
+        if (my !== seq) return;
+        if (n.dataset.from === 'bot') {
+          const dots = h('div', { class: 'typing', 'aria-label': '…' }, h('i'), h('i'), h('i'));
+          n.before(dots);
+          scrollIntoBox(dots, box);
+          await wait(typingDelay(n));
+          if (my !== seq) return;
+          dots.remove();
+          n.classList.remove('pending');
+          n.classList.add('enter-bot');
+        } else {
+          n.classList.remove('pending');
+          n.classList.add(n.dataset.from === 'me' ? 'enter-me' : 'enter-bot');
+          if (n.dataset.from === 'me') await wait(reduceMotion.matches ? 0 : 180);
+        }
+        scrollIntoBox(n, box);
+      }
+      if (my === seq) setBusy(false);
+    })();
+  }
+
+  // Shrinks an element away, then runs fn (which changes state and re-renders).
+  function collapseThen(el, fn) {
+    if (!el || reduceMotion.matches) { fn(); return; }
+    setBusy(true);
+    el.style.height = el.offsetHeight + 'px';
+    void el.offsetHeight;
+    el.classList.add('collapsing');
+    el.style.height = '0px';
+    setTimeout(() => { setBusy(false); fn(); }, 240);
+  }
+
+  // ── Routing ───────────────────────────────────────────────────────────────
+
+  function route() {
+    const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
+    const page = PAGES.includes(parts[0]) ? parts[0] : 'chats';
+    return { page, arg: parts[1] || null, arg2: parts[2] || null };
+  }
+  function go(hash) {
+    if (location.hash === hash) render(); else location.hash = hash;
+  }
+
+  // ── Shell ─────────────────────────────────────────────────────────────────
+
+  function langButtons() {
+    return h('div', { class: 'langs', role: 'group', 'aria-label': 'Language' }, LANGS.map(([code, label]) => h('button', {
+      type: 'button', lang: code, 'aria-pressed': String(code === lang), 'data-lang': code,
+      onclick: () => {
+        lang = code;
+        try { localStorage.setItem(LANG_KEY, code); } catch (e) { /* ignore */ }
+        const url = new URL(location.href);
+        if (url.searchParams.has('lang')) { url.searchParams.set('lang', code); history.replaceState(null, '', url); }
+        render();
+      },
+    }, label)));
+  }
+
+  function renderShell(page) {
+    const t = L();
+    document.documentElement.lang = t.htmlLang;
+    document.title = `${t.nav[page]} | ${t.ui.title}`;
+
+    document.getElementById('banner').replaceChildren(
+      h('span', { class: 'banner-text' }, t.ui.banner),
+      h('button', { type: 'button', class: 'banner-reset', 'data-k': 'reset', onclick: resetDemo }, t.ui.reset));
+
+    const nav = PAGES.map((p) => h('a', {
+      href: '#/' + p, class: 'nav-item', 'data-nav': p, 'aria-current': p === page ? 'page' : null,
+    }, icon(p), h('span', {}, t.nav[p])));
+
+    document.getElementById('rail').replaceChildren(
+      h('div', { class: 'brand' }, h('img', { src: '../assets/pinejay-icon-64.png', alt: '', width: 28, height: 28 }), h('span', {}, 'Pinejay')),
+      h('nav', { class: 'nav', 'aria-label': t.ui.pages }, nav),
+      h('div', { class: 'rail-foot' }, langButtons(), h('a', { class: 'back-tour', href: '../', 'data-k': 'tour' }, t.ui.back)));
+
+    document.getElementById('topbar').replaceChildren(
+      h('div', { class: 'brand' }, h('img', { src: '../assets/pinejay-icon-64.png', alt: '', width: 24, height: 24 }), h('span', {}, 'Pinejay')),
+      langButtons());
+
+    document.getElementById('tabbar').replaceChildren(...PAGES.map((p) => h('a', {
+      href: '#/' + p, class: 'tab', 'data-tab': p, 'aria-current': p === page ? 'page' : null,
+    }, icon(p), h('span', {}, t.nav[p]))));
+  }
+
+  function resetDemo() {
+    try { localStorage.removeItem(STORE); } catch (e) { /* ignore */ }
+    S = seed();
+    save();
+    render();
+    toast(L().ui.resetDone);
+  }
+
+  function pageHead(title, sub, extra) {
+    return h('header', { class: 'page-head' },
+      h('div', {}, h('h1', {}, title), sub ? h('p', { class: 'sub' }, sub) : null),
+      extra || null);
+  }
+
+  // ── Course ────────────────────────────────────────────────────────────────
+
+  function cc(id) { return L().course.courses[id]; }
+  function lessonCount(id) { return COURSES[id].chapters.reduce((a, b) => a + b, 0); }
+  function chapterOf(id, i) {
+    let n = 0;
+    const ch = COURSES[id].chapters;
+    for (let c = 0; c < ch.length; c += 1) { if (i < n + ch[c]) return c; n += ch[c]; }
+    return ch.length - 1;
+  }
+  function branchesOf(st, i) {
+    return (st.logs[i] || []).map((e, j) => ({ e, j })).filter(({ e }) => e.k === 'side' && e.key);
+  }
+  function branchCount(st) {
+    return Object.keys(st.logs).reduce((n, i) => n + branchesOf(st, Number(i)).length, 0);
+  }
+  function doneCount(id) {
+    const st = S.course.courses[id];
+    if (st.status === 'waiting') return 0;
+    if (st.status === 'finished') return lessonCount(id);
+    return st.pos;
+  }
+
+  function coursePage(main, arg) {
+    if (arg && COURSES[arg]) return courseDetail(main, arg);
+    const t = L().course;
+    const counts = { all: COURSE_ORDER.length };
+    for (const id of COURSE_ORDER) { const s = S.course.courses[id].status; counts[s] = (counts[s] || 0) + 1; }
+    const shown = COURSE_ORDER.filter((id) => S.course.filter === 'all' || S.course.courses[id].status === S.course.filter);
+
+    main.append(pageHead(t.title, t.sub));
+    main.append(h('div', { class: 'tabs', role: 'tablist' }, ['all', 'learning', 'waiting', 'finished'].map((f) => h('button', {
+      type: 'button', role: 'tab', 'aria-selected': String(S.course.filter === f), 'data-filter': f,
+      onclick: () => { S.course.filter = f; save(); render(); },
+    }, t.tabs[f], h('span', { class: 'count' }, counts[f] || 0)))));
+
+    const rows = shown.map((id) => {
+      const st = S.course.courses[id];
+      const c = cc(id);
+      const pos = st.status === 'waiting' ? t.planReady : st.status === 'finished' ? t.allDone : c.lessons[st.pos].t;
+      return h('a', { href: '#/course/' + id, class: 'crow', 'data-course': id },
+        h('span', { class: 'c-status' }, h('i', { class: 'dot ' + st.status }), t.status[st.status]),
+        h('span', { class: 'c-name' }, c.name),
+        h('span', { class: 'c-pos' }, pos),
+        h('span', { class: 'c-done num' }, `${doneCount(id)} / ${lessonCount(id)}`),
+        h('span', { class: 'c-last num' }, st.last === 'today' ? t.today : st.last ? lastDate(st.last) : t.never));
+    });
+    main.append(h('section', { class: 'card table courses' },
+      h('div', { class: 'crow head' }, h('span', { class: 'c-status' }, t.cols.status), h('span', { class: 'c-name' }, t.cols.course), h('span', { class: 'c-pos' }, t.cols.position), h('span', { class: 'c-done num' }, t.cols.done), h('span', { class: 'c-last num' }, t.cols.last)),
+      rows.length ? rows : h('div', { class: 'empty' }, t.none)));
+  }
+
+  function lastDate(s) {
+    const months = { Nov: 11, Oct: 10 };
+    const [m, d] = s.split(' ');
+    return L().date(months[m], Number(d));
+  }
+
+  function touch(id) { S.course.courses[id].last = 'today'; }
+  function courseView(id) { return `course:${id}:${S.course.mode}`; }
+
+  function courseDetail(main, id) {
+    const t = L().course;
+    const c = cc(id);
+    const st = S.course.courses[id];
+    main.classList.add('wide');
+
+    const head = h('div', { class: 'cd-head' },
+      h('a', { href: '#/course', class: 'back', 'data-k': 'back-courses' }, icon('back'), t.back),
+      h('h1', {}, c.name),
+      h('span', { class: 'cd-meta' }, st.status === 'waiting' ? t.status.waiting : t.progress(doneCount(id), lessonCount(id), branchCount(st))),
+      st.status === 'waiting' ? null : h('div', { class: 'seg', role: 'group' }, ['map', 'lesson'].map((m) => h('button', {
+        type: 'button', 'aria-pressed': String(S.course.mode === m), 'data-mode': m,
+        onclick: () => { S.course.mode = m; save(); render(); },
+      }, t.modes[m]))));
+    main.append(head);
+
+    if (st.status === 'waiting') { main.append(planView(id)); return; }
+
+    if (S.course.mode === 'map') {
+      const map = courseMap(id);
+      const card = h('section', { class: 'lesson-card' }, lessonCard(id));
+      main.append(h('div', { class: 'cd-map' }, map, card));
+      map.fit();
+      trackStream(courseView(id), card.querySelector('.stream'), card.querySelector('.stream'));
+      requestAnimationFrame(() => scrollStream(card));
+    } else {
+      const wrap = h('div', { class: 'cd-lesson' }, miniMap(id), h('div', { class: 'stream-col' }, streamAll(id)), actions(id));
+      main.append(wrap);
+      trackStream(courseView(id), wrap.querySelector('.stream'), null);
+      requestAnimationFrame(() => {
+        const mark = wrap.querySelector('[data-focus]') || wrap.querySelector('[data-divider="' + st.view + '"]');
+        if (mark && st.view !== st.pos) mark.scrollIntoView({ block: 'start' });
+        else window.scrollTo(0, document.body.scrollHeight);
+      });
+    }
+  }
+
+  function scrollStream(card) {
+    const box = card.querySelector('.stream');
+    if (!box) return;
+    const focus = box.querySelector('[data-focus]');
+    if (focus) box.scrollTop = focus.offsetTop - box.offsetTop - 12;
+    else box.scrollTop = box.scrollHeight;
+  }
+
+  function planView(id) {
+    const t = L().course;
+    const c = cc(id);
+    let n = 0;
+    return h('section', { class: 'card plan' },
+      h('p', { class: 'plan-note' }, c.plan),
+      COURSES[id].chapters.map((len, ci) => h('div', { class: 'plan-ch' },
+        h('div', { class: 'plan-ch-name' }, c.chapters[ci]),
+        h('ol', { start: n + 1 }, Array.from({ length: len }, () => { n += 1; return h('li', {}, c.lessons[n - 1].t); })))),
+      h('div', { class: 'plan-actions' }, h('button', {
+        type: 'button', class: 'btn primary', 'data-k': 'start',
+        onclick: () => {
+          const st = S.course.courses[id];
+          st.status = 'learning'; st.pos = 0; st.view = 0; st.logs = { 0: [{ k: 'lesson' }] }; st.used = {};
+          touch(id); S.course.mode = 'lesson'; save(); render();
+        },
+      }, t.start)));
+  }
+
+  let focusEntry = null; // { id, lesson, j } to highlight after a branch dot click
+
+  const MIN_STEP = 84;
+  const MAX_STEP = 128;
+
+  // Lays the lessons out to fit the width the map gets; below MIN_STEP it scrolls instead.
+  function mapLayout(n, avail) {
+    let step = MAX_STEP;
+    let labelW = 0;
+    let x0 = 0;
+    for (let pass = 0; pass < 3; pass += 1) {
+      labelW = Math.max(76, Math.min(108, step - 8));
+      x0 = Math.ceil(labelW / 2) + 10;
+      step = Math.max(MIN_STEP, Math.min(MAX_STEP, Math.floor((avail - 2 * x0) / Math.max(1, n - 1))));
+    }
+    labelW = Math.max(76, Math.min(108, step - 8));
+    x0 = Math.ceil(labelW / 2) + 10;
+    const W = Math.max(avail, x0 * 2 + step * (n - 1));
+    return { step, labelW, x0, W, scrolls: x0 * 2 + step * (n - 1) > avail + 1 };
+  }
+
+  function courseMap(id) {
+    const t = L().course;
+    const scroll = h('div', { class: 'map-scroll', tabindex: '0' });
+    const map = h('section', { class: 'map' },
+      h('div', { class: 'map-frame' }, scroll),
+      h('div', { class: 'legend' },
+        h('span', {}, h('i', { class: 'lg lg-main' }), t.legend.main),
+        h('span', {}, h('i', { class: 'lg lg-side' }), t.legend.side),
+        h('span', {}, h('i', { class: 'lg lg-todo' }), t.legend.todo)));
+    // Called once the map is in the page, so it can measure the width it has.
+    map.fit = () => drawMap(id, map, scroll);
+    return map;
+  }
+
+  function drawMap(id, map, scroll) {
+    const c = cc(id);
+    const st = S.course.courses[id];
+    const n = lessonCount(id);
+    const { step: STEP, labelW, x0: X0, W, scrolls } = mapLayout(n, scroll.clientWidth || 600);
+    let maxK = 0;
+    for (let i = 0; i < n; i += 1) maxK = Math.max(maxK, branchesOf(st, i).length);
+    const MAIN_Y = Math.max(64 + (maxK ? 92 + (maxK - 1) * 62 + 34 : 40), window.innerWidth > 760 ? 300 : 0);
+    // Room for lesson labels of up to four lines under the line.
+    const H = MAIN_Y + 22 + 4 * 16 + 14;
+    const x = (i) => X0 + STEP * i;
+    const cur = st.status === 'finished' ? n - 1 : st.pos;
+    const curCh = chapterOf(id, cur);
+
+    let svg = '';
+    const labels = [];
+    let start = 0;
+    COURSES[id].chapters.forEach((len, ci) => {
+      const left = ci === 0 ? 0 : x(start) - STEP / 2;
+      const right = ci === COURSES[id].chapters.length - 1 ? W : x(start + len - 1) + STEP / 2;
+      const fill = ci < curCh ? '#F4F4F5' : ci === curCh ? 'rgba(228,219,246,0.55)' : '#FAFAFA';
+      svg += `<rect x="${left}" y="0" width="${right - left}" height="${H}" fill="${fill}"/>`;
+      if (ci > 0) svg += `<line x1="${left}" y1="0" x2="${left}" y2="${H}" stroke="#E4E4E7"/>`;
+      labels.push(h('div', { class: 'ch-label' + (ci === curCh ? ' on' : ci > curCh ? ' later' : ''), style: `left:${left + 12}px;max-width:${right - left - 20}px` }, c.chapters[ci]));
+      start += len;
+    });
+    const am = animMap && animMap.id === id ? animMap : null;
+    animMap = null;
+    const adv = am && am.adv !== undefined && !reduceMotion.matches ? am.adv : null;
+    svg += `<line x1="0" y1="${MAIN_Y}" x2="${x(adv !== null ? adv : cur)}" y2="${MAIN_Y}" stroke="#3F3F46" stroke-width="3"/>`;
+    if (adv !== null && cur > adv) svg += `<line class="draw" pathLength="1" x1="${x(adv)}" y1="${MAIN_Y}" x2="${x(cur)}" y2="${MAIN_Y}" stroke="#3F3F46" stroke-width="3"/>`;
+    if (cur < n - 1 || st.status !== 'finished') svg += `<line x1="${x(cur)}" y1="${MAIN_Y}" x2="${W}" y2="${MAIN_Y}" stroke="#A1A1AA" stroke-width="2" stroke-dasharray="5 6"/>`;
+
+    // How far right a branch label at lesson i may run before the next loop or the edge.
+    const room = (i) => {
+      let nextLoop = null;
+      for (let k = i + 1; k < n; k += 1) if (branchesOf(st, k).length) { nextLoop = k; break; }
+      const limit = nextLoop !== null ? x(nextLoop) - 34 : W - 8;
+      return Math.max(60, limit - (x(i) + 16));
+    };
+
+    const dots = [];
+    for (let i = 0; i < n; i += 1) {
+      const done = i < cur || st.status === 'finished';
+      const isCur = i === cur && st.status !== 'finished';
+      const taught = i <= cur;
+      // Side-question loops rooted at this lesson, stacked upwards.
+      branchesOf(st, i).forEach(({ e, j }, k) => {
+        const hgt = 92 + k * 62;
+        const top = MAIN_Y - hgt;
+        const xi = x(i);
+        const loop = `M${xi - 3} ${MAIN_Y - 8} C ${xi - 30} ${top + 40}, ${xi - 26} ${top}, ${xi} ${top} C ${xi + 26} ${top}, ${xi + 30} ${top + 40}, ${xi + 3} ${MAIN_Y - 8}`;
+        const fresh = am && am.branch === `${i}-${j}` && !reduceMotion.matches;
+        // A new branch draws itself in: a solid mask path animates over the dashed loop.
+        if (fresh) svg += `<mask id="mk-${i}-${j}"><path class="draw" pathLength="1" d="${loop}" fill="none" stroke="#fff" stroke-width="6"/></mask>`;
+        svg += `<path d="${loop}" fill="none" stroke="#8C6FD2" stroke-width="2" stroke-dasharray="5 4"${fresh ? ` mask="url(#mk-${i}-${j})"` : ''}/>`;
+        svg += `<polygon points="${xi - 1},${MAIN_Y - 16} ${xi + 4},${MAIN_Y - 7} ${xi + 8},${MAIN_Y - 17}" fill="#8C6FD2"/>`;
+        const label = sideLabel(id, e);
+        dots.push(h('button', {
+          type: 'button', class: 'bdot' + (fresh ? ' pop-late' : ''), style: `left:${xi}px;top:${top}px`, 'data-branch': `${i}-${j}`, 'aria-label': label, title: label,
+          onclick: () => { st.view = i; focusEntry = { id, lesson: i, j }; save(); render(); },
+        }));
+        // The label follows its dot so hovering or focusing the dot can show the full text.
+        dots.push(h('div', { class: 'b-label' + (fresh ? ' pop-late' : ''), title: label, style: `left:${xi + 16}px;top:${top}px;max-width:${room(i)}px` }, label));
+      });
+      const cls = 'ldot' + (done ? ' done' : '') + (isCur ? ' now' : '') + (adv !== null && i === cur ? ' pop-late' : '') + (!taught ? ' todo' : '') + (i === st.view ? ' sel' : '');
+      if (taught) {
+        dots.push(h('button', {
+          type: 'button', class: cls, style: `left:${x(i)}px;top:${MAIN_Y}px`, 'data-lesson': i, 'aria-pressed': String(i === st.view),
+          'aria-label': c.lessons[i].t,
+          onclick: () => { st.view = i; focusEntry = null; save(); render(); },
+        }));
+      } else {
+        dots.push(h('span', { class: cls, style: `left:${x(i)}px;top:${MAIN_Y}px` }));
+      }
+      labels.push(h('div', { class: 'l-label' + (isCur ? ' now' : '') + (!taught ? ' todo' : '') + (i === st.view ? ' sel' : ''), style: `left:${x(i)}px;top:${MAIN_Y + 20}px;width:${labelW}px` }, c.lessons[i].t));
+    }
+
+    const canvas = h('div', { class: 'map-canvas', style: `width:${W}px;height:${H}px` }, svgEl(svg, `0 0 ${W} ${H}`, 'map-svg'), labels, dots);
+    canvas.querySelector('svg').setAttribute('width', W);
+    canvas.querySelector('svg').setAttribute('height', H);
+    scroll.replaceChildren(canvas);
+
+    // When it must scroll: fades mark the clipped edges, and it starts with the selected lesson in the middle.
+    const frame = map.querySelector('.map-frame');
+    frame.classList.toggle('scrolls', scrolls);
+    const edges = () => {
+      frame.classList.toggle('more-left', scroll.scrollLeft > 2);
+      frame.classList.toggle('more-right', scroll.scrollLeft + scroll.clientWidth < scroll.scrollWidth - 2);
+    };
+    if (scrolls) scroll.scrollLeft = Math.max(0, Math.min(W - scroll.clientWidth, x(st.view) - scroll.clientWidth / 2));
+    scroll.onscroll = edges;
+    edges();
+  }
+
+  function miniMap(id) {
+    const st = S.course.courses[id];
+    const n = lessonCount(id);
+    const cur = st.status === 'finished' ? n - 1 : st.pos;
+    const step = 40;
+    const W = 24 + step * (n - 1) + 24;
+    const y = 30;
+    let svg = `<line x1="0" y1="${y}" x2="${24 + step * cur}" y2="${y}" stroke="#3F3F46" stroke-width="2"/>`;
+    svg += `<line x1="${24 + step * cur}" y1="${y}" x2="${W}" y2="${y}" stroke="#A1A1AA" stroke-width="1.5" stroke-dasharray="3 4"/>`;
+    for (let i = 0; i < n; i += 1) {
+      const xi = 24 + step * i;
+      branchesOf(st, i).forEach((_, k) => {
+        const top = y - 16 - k * 8;
+        svg += `<path d="M${xi - 2} ${y - 4} C ${xi - 12} ${top + 4}, ${xi - 8} ${top}, ${xi} ${top} C ${xi + 8} ${top}, ${xi + 12} ${top + 4}, ${xi + 2} ${y - 4}" fill="none" stroke="#8C6FD2" stroke-width="1.4" stroke-dasharray="3 3"/><circle cx="${xi}" cy="${top}" r="2.6" fill="#fff" stroke="#8C6FD2" stroke-width="1.4"/>`;
+      });
+      if (i === cur && st.status !== 'finished') svg += `<circle cx="${xi}" cy="${y}" r="7" fill="#E4DBF6" stroke="#8C6FD2" stroke-width="2"/><circle cx="${xi}" cy="${y}" r="3.2" fill="#3F3F46"/>`;
+      else if (i <= cur) svg += `<circle cx="${xi}" cy="${y}" r="3.6" fill="#3F3F46"/>`;
+      else svg += `<circle cx="${xi}" cy="${y}" r="3.6" fill="#fff" stroke="#A1A1AA" stroke-width="1.4"/>`;
+    }
+    const c = cc(id);
+    return h('div', { class: 'mini' }, h('div', { class: 'mini-scroll' }, svgEl(svg, `0 0 ${W} 40`, 'mini-svg')),
+      h('div', { class: 'mini-label' }, st.status === 'finished' ? L().course.allDone : c.lessons[st.pos].t));
+  }
+
+  function sideLabel(id, e) {
+    const side = cc(id).side[e.key];
+    return side ? side.label : '';
+  }
+
+  // One lesson's entries as message blocks.
+  function entryNodes(id, i, opts) {
+    const t = L().course;
+    const c = cc(id);
+    const st = S.course.courses[id];
+    const ls = c.lessons[i];
+    const out = [];
+    const keyLabel = (k) => ({ alt: t.keys.differently, ex: t.keys.example, prac: t.keys.practice, next: t.keys.next, finish: t.keys.finish })[k];
+    (st.logs[i] || []).forEach((e, j) => {
+      const start = out.length;
+      if (e.tap) out.push(h('div', { class: 'm me tap' }, h('div', { class: 'who' }, t.learner), h('div', { class: 'm-text' }, keyLabel(e.k))));
+      const focus = focusEntry && focusEntry.id === id && focusEntry.lesson === i && focusEntry.j === j;
+      const bot = (text, extra) => h('div', { class: 'm bot' + (focus ? ' focus' : ''), 'data-focus': focus ? '1' : null }, h('div', { class: 'who' }, t.assistant), h('div', { class: 'm-text' }, text), extra || null);
+      const me = (text) => h('div', { class: 'm me' + (focus ? ' focus' : ''), 'data-focus': focus ? '1' : null }, h('div', { class: 'who' }, t.learner), h('div', { class: 'm-text' }, text));
+      if (e.k === 'lesson') {
+        if (opts.divider) out.push(h('div', { class: 'divider', 'data-divider': i, 'data-key': `${id}-${i}-div`, 'data-from': 'meta' }, h('span', {}, `${t.lessonN(i + 1)} ${ls.t}`)));
+        out.push(bot(ls.body));
+      } else if (e.k === 'alt') out.push(bot(ls.alt));
+      else if (e.k === 'ex') out.push(bot(ls.ex));
+      else if (e.k === 'prac') {
+        const answered = e.a !== null && e.a !== undefined;
+        const choices = h('div', { class: 'choices' }, ls.opts.map((o, oi) => h('button', {
+          type: 'button', class: 'choice' + (answered && oi === ls.ok ? ' right' : '') + (answered && oi === e.a && oi !== ls.ok ? ' wrong' : ''),
+          disabled: answered, 'data-choice': oi,
+          onclick: () => { if (busy) return; e.a = oi; touch(id); animNext = courseView(id); save(); render(); },
+        }, o)));
+        out.push(h('div', { class: 'm bot practice' }, h('div', { class: 'who' }, t.practiceTitle), h('div', { class: 'm-text' }, ls.pq), choices));
+        if (answered) {
+          out.push(me(ls.opts[e.a]));
+          out.push(h('div', { class: 'm bot verdict ' + (e.a === ls.ok ? 'ok' : 'no') }, h('div', { class: 'who' }, t.assistant), h('div', { class: 'm-text' }, e.a === ls.ok ? ls.right : ls.wrong)));
+        }
+      } else if (e.k === 'side') {
+        const side = c.side[e.key];
+        out.push(me(e.text || side.q));
+        out.push(bot(side.a, h('div', { class: 'm-note' }, t.sideNote)));
+      } else if (e.k === 'miss') {
+        out.push(me(e.text));
+        const asked = new Set(Object.values(st.logs).flat().filter((x) => x.k === 'side').map((x) => x.key));
+        const all = Object.keys(c.side).filter((k) => k !== 'ride');
+        const fresh = all.filter((k) => !asked.has(k));
+        const left = fresh.length ? fresh : all;
+        out.push(h('div', { class: 'm bot' }, h('div', { class: 'who' }, t.assistant), h('div', { class: 'm-text' }, t.fallback),
+          h('div', { class: 'suggest' }, left.map((k) => h('button', {
+            type: 'button', class: 'chip', 'data-suggest': k,
+            onclick: () => { if (!busy) askSide(id, c.side[k].q, k); },
+          }, c.side[k].q)))));
+      } else if (e.k === 'end') {
+        out.push(h('div', { class: 'm bot end' }, h('div', { class: 'who' }, t.assistant), h('div', { class: 'm-text' }, t.finished)));
+      } else if (e.k === 'tapnext') {
+        out.push(h('div', { class: 'm me tap' }, h('div', { class: 'who' }, t.learner), h('div', { class: 'm-text' }, keyLabel(e.key))));
+      }
+      out.slice(start).forEach((n, k) => {
+        if (n.dataset.key) return;
+        n.dataset.key = `${id}-${i}-${j}-${k}`;
+        n.dataset.from = n.classList.contains('me') ? 'me' : 'bot';
+      });
+    });
+    return out;
+  }
+
+  function lessonCard(id) {
+    const t = L().course;
+    const c = cc(id);
+    const st = S.course.courses[id];
+    const i = st.view;
+    const isCur = i === st.pos && st.status === 'learning';
+    const nb = branchesOf(st, i).length;
+    const meta = [t.lessonN(i + 1), isCur ? t.now : t.done, nb ? t.sides(nb) : null].filter(Boolean).join(L().ui.sep);
+    const nodes = [
+      h('div', { class: 'lc-head' }, h('h2', {}, c.lessons[i].t), h('div', { class: 'lc-meta' }, meta),
+        focusEntry && focusEntry.id === id && focusEntry.lesson === i && st.logs[i][focusEntry.j] ? h('div', { class: 'lc-branch', 'data-k': 'branch-label' }, h('i', { class: 'lg lg-side' }), sideLabel(id, st.logs[i][focusEntry.j])) : null),
+      h('div', { class: 'stream' }, entryNodes(id, i, { divider: false })),
+    ];
+    if (isCur) nodes.push(actions(id));
+    else {
+      nodes.push(h('div', { class: 'actions' }, h('div', { class: 'keys' },
+        st.status === 'learning' ? h('button', { type: 'button', class: 'key', 'data-k': 'to-current', onclick: () => { st.view = st.pos; focusEntry = null; save(); render(); } }, t.toCurrent) : null,
+        h('button', { type: 'button', class: 'key', 'data-k': 'open-lesson', onclick: () => { S.course.mode = 'lesson'; save(); render(); } }, t.openLesson))));
+    }
+    return nodes;
+  }
+
+  function streamAll(id) {
+    const st = S.course.courses[id];
+    const out = [];
+    const last = st.status === 'finished' ? lessonCount(id) - 1 : st.pos;
+    for (let i = 0; i <= last; i += 1) out.push(...entryNodes(id, i, { divider: true }));
+    return h('div', { class: 'stream all' }, out);
+  }
+
+  function actions(id) {
+    const t = L().course;
+    const st = S.course.courses[id];
+    if (st.status === 'finished') {
+      return h('div', { class: 'actions' }, h('p', { class: 'done-note' }, t.finishedShort));
+    }
+    const i = st.pos;
+    const used = st.used[i] || {};
+    const push = (entry, flag) => {
+      if (busy) return;
+      entry.tap = true;
+      animNext = courseView(id);
+      st.logs[i].push(entry);
+      st.used[i] = Object.assign({}, used, { [flag]: true });
+      st.view = i; focusEntry = null; touch(id); save(); render();
+    };
+    const keys = [h('button', {
+      type: 'button', class: 'key primary', 'data-k': 'next',
+      onclick: () => {
+        if (busy) return;
+        const n = lessonCount(id);
+        touch(id);
+        focusEntry = null;
+        animNext = courseView(id);
+        animMap = { id, adv: st.pos };
+        st.logs[st.pos].push({ k: 'tapnext', key: st.pos >= n - 1 ? 'finish' : 'next' });
+        if (st.pos >= n - 1) {
+          st.logs[st.pos].push({ k: 'end' });
+          st.status = 'finished';
+          st.view = st.pos;
+        } else {
+          st.pos += 1;
+          st.view = st.pos;
+          st.logs[st.pos] = [{ k: 'lesson' }];
+        }
+        save(); render();
+      },
+    }, st.pos >= lessonCount(id) - 1 ? t.keys.finish : t.keys.next)];
+    if (!used.alt) keys.push(h('button', { type: 'button', class: 'key', 'data-k': 'alt', onclick: () => push({ k: 'alt' }, 'alt') }, t.keys.differently));
+    if (!used.ex) keys.push(h('button', { type: 'button', class: 'key', 'data-k': 'example', onclick: () => push({ k: 'ex' }, 'ex') }, t.keys.example));
+    if (!used.prac) keys.push(h('button', { type: 'button', class: 'key', 'data-k': 'practice', onclick: () => push({ k: 'prac', a: null }, 'prac') }, t.keys.practice));
+
+    const input = h('input', { type: 'text', class: 'ask-input', placeholder: t.ask, 'aria-label': t.ask, 'data-k': 'ask', maxlength: 160 });
+    const form = h('form', {
+      class: 'ask',
+      onsubmit: (ev) => {
+        ev.preventDefault();
+        const q = input.value.trim();
+        if (q && !busy) askSide(id, q);
+      },
+    }, input, h('button', { type: 'submit', class: 'send', 'aria-label': t.send, 'data-k': 'send' }, icon('send')));
+    return h('div', { class: 'actions' }, h('div', { class: 'keys' }, keys), form);
+  }
+
+  function matchSide(id, q) {
+    const low = q.toLowerCase();
+    for (const [key, words] of Object.entries(SIDE_KEYS[id] || {})) {
+      for (const w of words) {
+        if (/^[\x20-\x7e]+$/.test(w)) {
+          const re = new RegExp('(^|[^a-z])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-z])', 'i');
+          if (re.test(low)) return key;
+        } else if (q.includes(w)) return key;
+      }
+    }
+    return null;
+  }
+
+  function askSide(id, q, forced) {
+    const st = S.course.courses[id];
+    const key = forced || matchSide(id, q);
+    const i = st.pos;
+    if (route().page === 'course') animNext = courseView(id);
+    if (key) {
+      st.logs[i].push({ k: 'side', key, text: q });
+      animMap = { id, branch: `${i}-${st.logs[i].length - 1}` };
+      focusEntry = null;
+      toast(L().course.branchAdded);
+    } else {
+      st.logs[i].push({ k: 'miss', text: q });
+    }
+    st.view = i;
+    touch(id);
+    save();
+    render();
+  }
+
+  // ── Journal ───────────────────────────────────────────────────────────────
+
+  // Records from the seed plus the ones made from messages sent in Chats.
+  function allRecords() { return RECORDS.concat(S.chat.records); }
+  function allMessages() { return MESSAGES.concat(S.chat.sent.filter((m) => m.record)); }
+  function msgOf(r) { return allMessages().find((m) => m.id === r.msg); }
+  function recText(r) { return r.user ? msgOf(r).text : L().journal.records[r.id]; }
+  // A message as alternating plain words and record spans (odd positions).
+  function msgWords(m) { return m.user ? ['', m.text, ''] : L().journal.messages[m.id]; }
+  function placeName(p) { return L().journal.places[p]; }
+
+  function recordMatches(r, q, chip) {
+    const t = L().journal;
+    const m = msgOf(r);
+    if (chip) {
+      const [kind, val] = chip.split(':');
+      if (kind === 'place' && m.place !== val) return false;
+      if (kind === 'person' && !m.people.includes(val)) return false;
+      if (kind === 'week' && weekOf(m.date) !== val) return false;
+    }
+    if (!q) return true;
+    const hay = [
+      recText(r),
+      msgWords(m).join(''),
+      m.place ? placeName(m.place) : '',
+      m.people.map((p) => t.people[p]).join(' '),
+      t.week(fmtDate(weekOf(m.date))),
+      fmtDate(m.date),
+      t.kinds[r.kind],
+    ].join(' ').toLowerCase();
+    return q.toLowerCase().split(/\s+/).filter(Boolean).every((w) => hay.includes(w));
+  }
+
+  function openRecord(id) { S.journal.open = id; save(); go('#/journal/' + id); }
+
+  function journalPage(main, arg) {
+    const t = L().journal;
+    const J = S.journal;
+    if (arg && allRecords().some((r) => r.id === arg)) J.open = arg;
+    main.classList.add('wide');
+    main.append(pageHead(t.title, t.sub));
+
+    const msgs = allMessages();
+    const weeks = [...new Set(msgs.map((m) => weekOf(m.date)))].sort();
+    const places = JOURNAL_PLACES.concat(WEATHER_PLACES.filter((p) => !JOURNAL_PLACES.includes(p) && msgs.some((m) => m.place === p)));
+    const chip = (key, label) => h('button', {
+      type: 'button', class: 'chip' + (J.chip === key ? ' on' : ''), 'aria-pressed': String(J.chip === key), 'data-chip': key,
+      onclick: () => { J.chip = J.chip === key ? null : key; save(); render(); },
+    }, label);
+
+    const input = h('input', { type: 'search', class: 'search', placeholder: t.search, 'aria-label': t.search, value: J.q, 'data-k': 'search' });
+    const listBox = h('div', { class: 'jlist' });
+    const countEl = h('span', { class: 'count-line' });
+
+    function drawList() {
+      const hits = allRecords().filter((r) => recordMatches(r, J.q, J.chip));
+      countEl.textContent = t.count(hits.length);
+      const groups = [];
+      const sorted = hits.slice().sort((a, b) => (msgOf(b).date + msgOf(b).time).localeCompare(msgOf(a).date + msgOf(a).time));
+      let lastMonth = null;
+      let lastDay = null;
+      for (const r of sorted) {
+        const m = msgOf(r);
+        const month = m.date.slice(0, 7);
+        if (month !== lastMonth) { groups.push(h('div', { class: 'jmonth' }, t.month(Number(month.slice(5))))); lastMonth = month; lastDay = null; }
+        // The date shows once per day; later rows of the same day keep the slot empty.
+        const showDate = m.date !== lastDay;
+        lastDay = m.date;
+        groups.push(h('button', {
+          type: 'button', class: 'jrow' + (J.open === r.id ? ' on' : ''), 'data-record': r.id, 'aria-pressed': String(J.open === r.id),
+          onclick: () => { J.open = r.id; save(); render(); requestAnimationFrame(() => { const d = document.querySelector('.jdetail'); if (d && window.innerWidth <= 980) d.scrollIntoView({ block: 'start' }); }); },
+        },
+        h('span', { class: 'j-date num', 'data-datecell': '' }, showDate ? fmtDate(m.date) : ''),
+        h('span', { class: 'j-kind' }, h('span', { class: 'kind k-' + r.kind }, t.kinds[r.kind])),
+        h('span', { class: 'j-body' },
+          h('span', { class: 'j-text' }, recText(r)),
+          h('span', { class: 'j-meta' }, [m.place ? placeName(m.place) : null, ...m.people.map((p) => t.people[p])].filter(Boolean).join(L().ui.sep)))));
+      }
+      listBox.replaceChildren(...(groups.length ? groups : [h('div', { class: 'empty' }, t.noHits)]));
+      listBox.classList.remove('fade-in');
+      void listBox.offsetWidth;
+      listBox.classList.add('fade-in');
+    }
+    input.addEventListener('input', () => { J.q = input.value; save(); drawList(); });
+
+    main.append(h('div', { class: 'jtools' },
+      input,
+      h('div', { class: 'chip-rows' },
+        h('div', { class: 'chip-row' }, h('span', { class: 'chip-k' }, t.by.place), places.map((p) => chip('place:' + p, placeName(p)))),
+        h('div', { class: 'chip-row' }, h('span', { class: 'chip-k' }, t.by.person), JOURNAL_PEOPLE.map((p) => chip('person:' + p, t.people[p]))),
+        h('div', { class: 'chip-row' }, h('span', { class: 'chip-k' }, t.by.week), weeks.map((w) => chip('week:' + w, t.week(fmtDate(w))))))));
+
+    const cols = h('div', { class: 'jcols' },
+      h('section', { class: 'card jlist-card' }, h('div', { class: 'card-head' }, h('h2', {}, t.timeline), countEl), listBox),
+      journalDetail());
+    main.append(cols);
+    drawList();
+  }
+
+  // The message words, with the record's own span highlighted and other record spans clickable.
+  function saidNodes(m, activeRec) {
+    const J = S.journal;
+    let spanIdx = -1;
+    return msgWords(m).map((w, wi) => {
+      if (wi % 2 === 0) return w;
+      spanIdx += 1;
+      const si = spanIdx;
+      const owner = allRecords().find((x) => x.msg === m.id && x.span === si);
+      if (activeRec && activeRec.msg === m.id && si === activeRec.span) return h('mark', { class: 'on', 'data-span': si }, w);
+      if (!owner) return w;
+      const pick = () => { if (route().page === 'journal') { J.open = owner.id; save(); render(); } else openRecord(owner.id); };
+      // A span rather than a button so the words wrap like the rest of the message.
+      return h('span', { role: 'button', tabindex: '0', class: 'span', 'data-span': si, onclick: pick, onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } } }, w);
+    });
+  }
+
+  function journalDetail() {
+    const t = L().journal;
+    const J = S.journal;
+    const r = allRecords().find((x) => x.id === J.open);
+    if (!r) return h('section', { class: 'card jdetail empty-detail' }, h('p', {}, t.pick));
+    const m = msgOf(r);
+    const siblings = allRecords().filter((x) => x.msg === m.id);
+    return h('section', { class: 'card jdetail' },
+      h('div', { class: 'jd-kind' }, h('span', { class: 'kind k-' + r.kind }, t.kinds[r.kind]), h('span', { class: 'num' }, fmtDate(m.date))),
+      h('h2', { class: 'jd-title' }, recText(r)),
+      h('dl', { class: 'facts' },
+        m.place ? [h('dt', {}, t.by.place), h('dd', {}, placeName(m.place))] : null,
+        m.people.length ? [h('dt', {}, t.by.person), h('dd', {}, m.people.map((p) => t.people[p]).join(L().ui.sep))] : null,
+        h('dt', {}, t.by.week), h('dd', {}, t.week(fmtDate(weekOf(m.date))))),
+      h('div', { class: 'jd-label' }, t.source),
+      chatExcerpt('journal', m.id, r),
+      siblings.length > 1 ? [h('div', { class: 'jd-label' }, t.fromSame(siblings.length)),
+        h('div', { class: 'siblings' }, siblings.map((x) => h('button', {
+          type: 'button', class: 'sib' + (x.id === r.id ? ' on' : ''), 'data-sibling': x.id, 'aria-pressed': String(x.id === r.id),
+          onclick: () => { J.open = x.id; save(); render(); },
+        }, h('span', { class: 'kind k-' + x.kind }, t.kinds[x.kind]), h('span', {}, recText(x)))))] : null);
+  }
+
+  // ── Chats ─────────────────────────────────────────────────────────────────
+
+  const TOPICS = ['journal', 'forecast', 'linalg', 'review', 'weather'];
+  const LESSON_DATES = {
+    forecast: ['2026-11-14', '2026-11-17', '2026-11-20'],
+    linalg: ['2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-17', '2026-11-20'],
+    japanese: [],
+  };
+  const TODAY = '2026-11-21';
+  const BOT_REPLY = { m1: '10:12', m2: '21:41', m3: '18:06', m4: '22:15', m5: '19:31', m6: '20:41', m7: '18:51', m8: '17:21', m9: '21:06' };
+  const CHAT_KEYS = {
+    greet: ['hello', 'hi', 'hey', '你好', '您好', 'こんにちは', 'おはよう'],
+    thanks: ['thank', 'thanks', '谢谢', '謝謝', '多謝', 'ありがと'],
+    weather: ['weather', 'rain', 'umbrella', '天气', '下雨', '天氣', '落雨', '天気', '雨', '傘', '伞'],
+  };
+  const PLACE_KEYS = {
+    seabright: ['seabright', '海明', '汐見'], southport: ['south port', 'southport', '南港'], eastlake: ['east lake', '东湖', '東湖'],
+    northbank: ['northbank', '江北'], riverside: ['riverside', '江边', '海濱', '川沿い'],
+  };
+  const PEOPLE_KEYS = { lin: ['mr lin', 'lin', '小林', '林先生'], zhou: ['zhou', '阿周', '周さん'] };
+  const PLAN_KEYS = ['will', 'plan', 'planning', 'going to', 'want to', 'tomorrow', 'next week', 'need to', '打算', '计划', '計劃', '想', '要去', '明天', '下周', '下週', 'つもり', '予定', 'たい', '明日', '来週'];
+
+  function hasKey(text, words) {
+    const low = text.toLowerCase();
+    return words.some((w) => (/^[\x20-\x7e]+$/.test(w)
+      ? new RegExp('(^|[^a-z])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-z])').test(low)
+      : text.includes(w)));
+  }
+
+  function topicName(id) {
+    const t = L();
+    if (id === 'journal') return t.nav.journal;
+    if (id === 'review') return t.nav.review;
+    if (id === 'weather') return t.nav.weather;
+    return cc(id).name;
+  }
+
+  // Every topic's log, built from the seed and from the live state of the other pages.
+  function topicItems(id) {
+    const t = L();
+    const ch = t.chats;
+    const items = [];
+    const me = (o) => items.push(Object.assign({ from: 'me' }, o));
+    const bot = (o) => items.push(Object.assign({ from: 'bot' }, o));
+    if (id === 'journal') {
+      for (const m of MESSAGES) {
+        if (m.id === 'm6') {
+          me({ id: 'ty-q', date: '2026-11-08', time: '20:31', text: t.diagrams.q });
+          bot({ id: 'ty-a', date: '2026-11-08', time: '20:31', text: t.diagrams.a.join(' '), diagram: true });
+        }
+        me({ id: m.id, date: m.date, time: m.time, msg: m });
+        bot({ id: m.id + '-r', date: m.date, time: BOT_REPLY[m.id], text: ch.replies[m.id] });
+      }
+      for (const m of S.chat.sent.filter((x) => x.topic === 'journal')) {
+        me({ id: m.id, date: m.date, time: m.time, msg: m.record ? m : null, text: m.text });
+        const rep = m.record ? ch.saved(t.journal.kinds[S.chat.records.find((r) => r.msg === m.id).kind],
+          [m.place ? placeName(m.place) : null, ...m.people.map((p) => t.journal.people[p])].filter(Boolean).join(t.ui.sep)) : ch.auto[m.reply];
+        bot({ id: m.id + '-r', date: m.date, time: m.time, text: rep });
+      }
+    } else if (COURSES[id]) {
+      const st = S.course.courses[id];
+      const c = cc(id);
+      const extra = (ch.courseExtra[id] || []);
+      const last = st.status === 'waiting' ? -1 : st.status === 'finished' ? lessonCount(id) - 1 : st.pos;
+      const dated = [];
+      extra.forEach((x, k) => dated.push({ date: x[0], order: -1, k, x }));
+      for (let i = 0; i <= last; i += 1) dated.push({ date: LESSON_DATES[id][i] || TODAY, order: i, i });
+      dated.sort((a, b) => a.date.localeCompare(b.date) || a.order - b.order);
+      for (const d of dated) {
+        if (d.x) {
+          me({ id: `${id}-x${d.k}`, date: d.x[0], time: d.x[1], text: d.x[2] });
+          bot({ id: `${id}-x${d.k}r`, date: d.x[0], time: d.x[1], text: d.x[3] });
+          continue;
+        }
+        const ls = c.lessons[d.i];
+        (st.logs[d.i] || []).forEach((e, j) => {
+          const base = { date: d.date, time: null, lesson: d.i };
+          const tapLabel = { alt: t.course.keys.differently, ex: t.course.keys.example, prac: t.course.keys.practice };
+          if (e.tap) me(Object.assign({}, base, { text: tapLabel[e.k] }));
+          if (e.k === 'tapnext') me(Object.assign({}, base, { text: t.course.keys[e.key] }));
+          if (e.k === 'lesson') bot(Object.assign({}, base, { id: `${id}-${d.i}`, title: `${t.course.lessonN(d.i + 1)} ${ls.t}`, text: ls.body }));
+          else if (e.k === 'alt') bot(Object.assign({}, base, { text: ls.alt }));
+          else if (e.k === 'ex') bot(Object.assign({}, base, { text: ls.ex }));
+          else if (e.k === 'prac') {
+            bot(Object.assign({}, base, { title: t.course.practiceTitle, text: ls.pq }));
+            if (e.a !== null && e.a !== undefined) { me(Object.assign({}, base, { text: ls.opts[e.a] })); bot(Object.assign({}, base, { text: e.a === ls.ok ? ls.right : ls.wrong })); }
+          } else if (e.k === 'side') { me(Object.assign({}, base, { id: `${id}-${d.i}-${j}`, text: e.text || c.side[e.key].q })); bot(Object.assign({}, base, { text: c.side[e.key].a })); }
+          else if (e.k === 'miss') { me(Object.assign({}, base, { text: e.text })); bot(Object.assign({}, base, { text: t.course.fallback + ' ' + Object.keys(c.side).filter((k) => k !== 'ride').map((k) => c.side[k].q).join(' ') })); }
+          else if (e.k === 'end') bot(Object.assign({}, base, { text: t.course.finished }));
+        });
+      }
+    } else if (id === 'review') {
+      const R = S.review;
+      const rv = t.review;
+      for (const rid of R.order.slice().reverse()) {
+        const it = rv.items[rid];
+        bot({ id: 'rv-' + rid, date: TODAY, time: '21:00', title: rv.cats[REVIEW_CAT[rid]], text: it.text, quotes: it.quotes });
+        const s = R.items[rid];
+        if (s.st === 'later') { me({ date: TODAY, time: '21:02', text: `${rv.actions.later}: ${rv.times[s.when]}` }); bot({ date: TODAY, time: '21:02', text: ch.reviewAck.later(rv.times[s.when]) }); }
+        else if (s.st === 'dropped') { me({ date: TODAY, time: '21:02', text: rv.actions.drop }); bot({ date: TODAY, time: '21:02', text: ch.reviewAck.dropped }); }
+        else if (s.st === 'done') { me({ date: TODAY, time: '21:02', text: rv.actions.done }); bot({ date: TODAY, time: '21:02', text: ch.reviewAck.done }); }
+      }
+    } else if (id === 'weather') {
+      ch.oldCards.forEach(([date, line], k) => bot({ id: 'wx-' + k, date, time: '07:00', text: line }));
+      const w = t.weather;
+      const lines = S.weather.follow.map((p) => {
+        const shown = WEATHER[p].watch.filter((k) => S.weather.alerts[k]).slice(0, 2);
+        return shown.length ? shown.map((k) => `${w.places[p].name}${ch.colon}${w.places[p].watch[k][0]}`) : [];
+      }).flat();
+      bot({ id: 'wx-today', date: TODAY, time: '07:00', title: w.cardTitle, text: lines.length ? lines.join('\n') : w.quiet });
+    }
+    return items;
+  }
+
+  function bubble(it, opts) {
+    const t = L();
+    const ch = t.chats;
+    const hl = opts && opts.target === it.id;
+    const node = h('div', { class: 'cb ' + it.from + (hl ? ' hl' : ''), 'data-msg': it.id || null, 'data-hl': hl ? '1' : null });
+    const inner = h('div', { class: 'cb-bubble' });
+    if (it.title) inner.append(h('div', { class: 'cb-title' }, it.title));
+    if (it.msg) inner.append(h('div', { class: 'cb-text' }, saidNodes(it.msg, opts && opts.rec)));
+    else inner.append(h('div', { class: 'cb-text' }, it.text));
+    if (it.quotes) inner.append(h('div', { class: 'cb-quotes' }, it.quotes.map(([q, src]) => h('div', {}, q, h('span', { class: 'src' }, src)))));
+    if (it.diagram) {
+      inner.append(h('a', { class: 'cb-diagram', href: '#/diagrams', 'data-k': 'open-diagram' }, svgEl(typhoonMap(t.diagrams.widget, 0), '0 0 318 206', 'ty-svg'), h('span', {}, t.diagrams.widget.title)));
+    }
+    if (it.time) inner.append(h('div', { class: 'cb-time num', 'data-datecell': '' }, it.time));
+    node.append(inner);
+    if (it.msg && !(opts && opts.excerpt)) {
+      const recs = allRecords().filter((r) => r.msg === it.msg.id);
+      if (recs.length) node.append(h('button', { type: 'button', class: 'cb-recs', 'data-records-of': it.msg.id, onclick: () => openRecord(recs[0].id) }, icon('journal'), ch.records(recs.length)));
+    }
+    return node;
+  }
+
+  function threadNodes(items, opts) {
+    const out = [];
+    let lastDate = null;
+    items.forEach((it, idx) => {
+      if (it.date !== lastDate) { out.push(h('div', { class: 'cb-date', 'data-key': 'd-' + it.date, 'data-from': 'meta' }, h('span', { 'data-datecell': '' }, fmtDate(it.date)))); lastDate = it.date; }
+      const b = bubble(it, opts);
+      b.dataset.key = 'b-' + idx;
+      b.dataset.from = it.from;
+      out.push(b);
+    });
+    return out;
+  }
+
+  // The source of a record as a short piece of the chat it came from.
+  function chatExcerpt(topic, msgId, rec) {
+    const ch = L().chats;
+    const items = topicItems(topic);
+    const at = items.findIndex((x) => x.id === msgId);
+    const from = Math.max(0, at - (items[at - 1] && items[at - 1].date === items[at].date ? 1 : 0));
+    const piece = items.slice(from, at + 2);
+    return h('div', { class: 'excerpt', 'data-k': 'excerpt' },
+      h('div', { class: 'ex-head' }, h('span', { class: 'ex-topic' }, icon('chats'), topicName(topic)),
+        h('a', { href: `#/chats/${topic}/${msgId}`, class: 'link', 'data-k': 'open-chat' }, ch.openInChat)),
+      h('div', { class: 'thread small' }, threadNodes(piece, { target: msgId, rec, excerpt: true })));
+  }
+
+  function chatsPage(main, arg, arg2) {
+    const t = L();
+    const ch = t.chats;
+    const topic = TOPICS.includes(arg) ? arg : null;
+    const shown = topic || (window.innerWidth > 760 ? 'journal' : null);
+    main.classList.add('wide');
+    main.append(pageHead(ch.title, ch.sub));
+
+    const list = h('section', { class: 'card topics' + (topic ? ' has-open' : '') }, TOPICS.map((id) => {
+      const items = topicItems(id);
+      const lastIt = items[items.length - 1];
+      return h('a', { href: '#/chats/' + id, class: 'topic' + (id === shown ? ' on' : ''), 'data-topic': id, 'aria-current': id === shown ? 'true' : null },
+        h('span', { class: 't-name' }, topicName(id)),
+        h('span', { class: 't-last', 'data-datecell': '' }, lastIt ? fmtDate(lastIt.date) : ''));
+    }));
+
+    if (!shown) { main.append(h('div', { class: 'chats' }, list)); return; }
+
+    const items = topicItems(shown);
+    const thread = h('div', { class: 'thread', 'data-k': 'thread' }, threadNodes(items, { target: arg2 }));
+    let foot = null;
+    const course = COURSES[shown] ? S.course.courses[shown] : null;
+    if (shown === 'journal' || (course && course.status === 'learning')) {
+      const input = h('input', { type: 'text', class: 'ask-input', placeholder: shown === 'journal' ? ch.placeholder : t.course.ask, 'aria-label': ch.placeholder, 'data-k': 'chat-input', maxlength: 200 });
+      foot = h('form', {
+        class: 'ask chat-ask',
+        onsubmit: (ev) => {
+          ev.preventDefault();
+          const q = input.value.trim();
+          if (!q) return;
+          if (busy) return;
+          animNext = 'chats:' + shown;
+          if (shown === 'journal') sendJournal(q);
+          else askSide(shown, q);
+        },
+      }, input, h('button', { type: 'submit', class: 'send', 'aria-label': t.course.send, 'data-k': 'chat-send' }, icon('send')));
+    } else {
+      foot = h('p', { class: 'muted small chat-note' }, course ? ch.coursePending : ch.readOnly);
+    }
+    const pane = h('section', { class: 'card chat-pane' },
+      h('div', { class: 'chat-head' },
+        h('a', { href: '#/chats', class: 'back chat-back', 'data-k': 'back-topics' }, icon('back'), ch.topics),
+        h('h2', {}, topicName(shown)),
+        COURSES[shown] ? h('a', { href: '#/course/' + shown, class: 'link', 'data-k': 'open-course' }, ch.openCourse) : null),
+      thread, h('div', { class: 'chat-foot' }, foot));
+    main.append(h('div', { class: 'chats' + (topic ? ' open' : '') }, list, pane));
+    trackStream('chats:' + shown, thread, window.innerWidth > 760 ? thread : null);
+
+    requestAnimationFrame(() => {
+      const target = thread.querySelector('[data-hl]');
+      const behavior = reduceMotion.matches ? 'auto' : 'smooth';
+      if (target && window.innerWidth > 760) thread.scrollTo({ top: target.offsetTop - thread.offsetTop - thread.clientHeight / 2 + target.offsetHeight / 2, behavior });
+      else if (target) target.scrollIntoView({ block: 'center', behavior });
+      else thread.scrollTop = thread.scrollHeight;
+      if (window.innerWidth <= 760 && !target && topic) window.scrollTo(0, document.body.scrollHeight);
+    });
+  }
+
+  function sendJournal(text) {
+    const n = S.chat.sent.length;
+    const mins = 30 + n;
+    const time = `21:${String(mins % 60).padStart(2, '0')}`;
+    const id = 'u' + (n + 1);
+    const place = Object.keys(PLACE_KEYS).find((p) => hasKey(text, PLACE_KEYS[p])) || null;
+    const people = Object.keys(PEOPLE_KEYS).filter((p) => hasKey(text, PEOPLE_KEYS[p]));
+    const plan = hasKey(text, PLAN_KEYS);
+    const m = { id, topic: 'journal', date: TODAY, time, text, place, people, user: true, record: !!(place || people.length || plan) };
+    if (m.record) {
+      S.chat.records.push({ id: 'ur' + (S.chat.records.length + 1), msg: id, span: 0, kind: plan ? 'plan' : 'event', user: true });
+      toast(L().chats.recordMade);
+    } else {
+      m.reply = Object.keys(CHAT_KEYS).find((k) => hasKey(text, CHAT_KEYS[k])) || 'fallback';
+    }
+    S.chat.sent.push(m);
+    save();
+    if (location.hash === '#/chats/journal') render(); else go('#/chats/journal');
+  }
+
+  // ── Review ────────────────────────────────────────────────────────────────
+
+  let remindOpen = null;
+
+  function reviewPage(main) {
+    const t = L().review;
+    const R = S.review;
+    const by = (st) => R.order.filter((id) => R.items[id].st === st);
+    const open = by('open');
+    main.append(pageHead(t.title, t.sub, h('button', { type: 'button', class: 'btn', 'data-k': 'rerun', onclick: rerun }, t.rerun)));
+
+    main.append(h('div', { class: 'stats' },
+      [['open', t.counts.open, open.length], ['later', t.counts.later, by('later').length], ['done', t.counts.done, by('done').length], ['dropped', t.counts.dropped, by('dropped').length]]
+        .map(([k, label, n]) => h('div', { class: 'stat', 'data-count': k }, h('div', { class: 'stat-n num' }, n), h('div', { class: 'stat-l' }, label)))));
+
+    if (R.run) {
+      const parts = [R.run.added ? t.runAdded(R.run.added) : t.runNothing];
+      if (R.run.skipped) parts.push(t.runSkipped(R.run.skipped));
+      main.append(h('p', { class: 'run-note', 'data-k': 'run-note' }, parts.join(' ')));
+    }
+
+    main.append(h('h2', { class: 'sec' }, t.tonight, h('span', { class: 'count' }, open.length)));
+    if (!open.length) main.append(h('div', { class: 'card empty' }, t.allClear));
+    for (const id of open) main.append(reviewItem(id));
+
+    const handled = R.order.filter((id) => R.items[id].st !== 'open');
+    if (handled.length) {
+      main.append(h('h2', { class: 'sec' }, t.handled, h('span', { class: 'count' }, handled.length)));
+      main.append(h('section', { class: 'card handled' }, handled.map((id) => {
+        const it = R.items[id];
+        const status = it.st === 'later' ? t.statusLater(t.times[it.when]) : t.status[it.st];
+        return h('div', { class: 'hrow', 'data-handled': id },
+          h('span', { class: 'h-st st-' + it.st }, status),
+          h('span', { class: 'h-title' }, t.items[id].title),
+          h('button', { type: 'button', class: 'link', 'data-undo': id, onclick: () => { it.st = 'open'; delete it.when; save(); render(); } }, t.undo));
+      })));
+    }
+  }
+
+  function reviewItem(id) {
+    const t = L().review;
+    const it = t.items[id];
+    const state = S.review.items[id];
+    const set = (st, when) => {
+      if (busy) return;
+      const el = document.querySelector(`[data-item="${id}"]`);
+      const commit = () => {
+        state.st = st;
+        if (when) state.when = when; else delete state.when;
+        remindOpen = null;
+        save(); render();
+      };
+      if (st === 'later' && el && !reduceMotion.matches) {
+        // A short confirmation in place of the time choices, then the item folds away.
+        const menuEl = el.querySelector('.remind-menu');
+        const note = h('div', { class: 'r-confirm', 'data-k': 'remind-confirm' }, icon('check'), L().chats.reviewAck.later(t.times[when]));
+        if (menuEl) menuEl.replaceWith(note); else el.append(note);
+        setBusy(true);
+        setTimeout(() => { setBusy(false); collapseThen(el, commit); }, 900);
+      } else collapseThen(el, commit);
+    };
+    const menu = remindOpen === id ? h('div', { class: 'remind-menu', role: 'group', 'aria-label': t.when }, h('span', { class: 'rm-k' }, t.when),
+      REMIND_TIMES.map((k) => h('button', { type: 'button', class: 'chip', 'data-time': k, onclick: () => set('later', k) }, t.times[k])),
+      h('button', { type: 'button', class: 'link', 'data-k': 'remind-cancel', onclick: () => { remindOpen = null; render(); } }, t.cancel)) : null;
+    const isNew = justAdded === id;
+    return h('article', { class: 'card ritem' + (isNew ? ' slide-in' : ''), 'data-item': id },
+      h('div', { class: 'r-top' }, h('span', { class: 'tag t-' + REVIEW_CAT[id] }, t.cats[REVIEW_CAT[id]]), h('h3', {}, it.title)),
+      h('p', { class: 'r-text' }, it.text),
+      h('div', { class: 'quotes' }, it.quotes.map(([q, src]) => h('div', { class: 'quote' }, h('span', { class: 'q' }, q), h('span', { class: 'src' }, src)))),
+      h('div', { class: 'r-actions' },
+        h('button', { type: 'button', class: 'btn' + (remindOpen === id ? ' on' : ''), 'data-act': 'later', 'aria-expanded': String(remindOpen === id), onclick: () => { remindOpen = remindOpen === id ? null : id; render(); } }, t.actions.later),
+        h('button', { type: 'button', class: 'btn', 'data-act': 'drop', onclick: () => set('dropped') }, t.actions.drop),
+        h('button', { type: 'button', class: 'btn', 'data-act': 'done', onclick: () => set('done') }, icon('check'), t.actions.done)),
+      menu);
+  }
+
+  function rerun() {
+    const R = S.review;
+    let added = 0;
+    for (const id of REVIEW_POOL) {
+      if (!R.items[id]) { R.items[id] = { st: 'open' }; R.order.unshift(id); added += 1; justAdded = id; }
+    }
+    const skipped = R.order.filter((id) => R.items[id].st === 'dropped').length;
+    R.run = { added, skipped };
+    save(); render();
+  }
+
+  // ── Diagrams: the typhoon track, ported from the showcase widget ─────────
+
+  const TY_PAST = [[304, 196], [282, 186], [260, 172], [236, 158]];
+  const TY_FC = [[236, 158, 3], [192, 124, 12], [156, 92, 22], [130, 58, 34]];
+  const TY_CITY = [101, 70];
+  const TY_KM = 2.7;
+  const TY_CONE = 'M96 58 L97.2 49.2 L100.6 41 L106 34 L113 28.6 L121.2 25.2 L130 24 L138.8 25.2 L147 28.6 L154 34 L157 37.3 L238.4 156.2 L239 158 L238.4 159.8 L236 161 L234.5 160.6 L186 134.4 L145 111.1 L142.6 109.5 L109.3 85 L106 82 L103 78.7 L100.6 75 L98.6 71 L97.2 66.8 L96.3 62.4 Z';
+
+  function tyAt(hr) {
+    const i = Math.min(2, Math.floor(hr / 24));
+    const f = (hr - 24 * i) / 24;
+    const p = TY_FC[i];
+    const q = TY_FC[i + 1];
+    return [p[0] + (q[0] - p[0]) * f, p[1] + (q[1] - p[1]) * f, p[2] + (q[2] - p[2]) * f];
+  }
+
+  function typhoonMap(w, hr) {
+    const pos = tyAt(hr);
+    const path = (pts) => pts.map(([x, y], i) => (i ? 'L' : 'M') + x + ' ' + y).join(' ');
+    const fc = TY_FC.map(([x, y]) => [x, y]);
+    const done = [...fc.filter((_, i) => i * 24 <= hr), [pos[0], pos[1]]];
+    return `
+      <defs><linearGradient id="ty-sea" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0F2740"/><stop offset="1" stop-color="#143A5E"/></linearGradient></defs>
+      <rect width="318" height="206" fill="url(#ty-sea)"/>
+      <g stroke="#fff" stroke-opacity="0.07"><path d="M80 0 V206 M160 0 V206 M240 0 V206 M0 70 H318 M0 140 H318"/></g>
+      <path d="M0 0 L118 0 C108 22 92 34 98 52 C104 70 84 82 88 100 C92 118 70 130 62 150 C56 166 40 180 30 206 L0 206 Z" fill="#26362F" stroke="#4B6658" stroke-width="1.2"/>
+      <path d="${TY_CONE}" fill="#F2C14E" fill-opacity="0.08" stroke="#F2C14E" stroke-opacity="0.3"/>
+      <circle cx="${pos[0]}" cy="${pos[1]}" r="${pos[2]}" fill="#F2C14E" fill-opacity="0.22" stroke="#F2C14E" stroke-width="1.5"/>
+      <path d="${path(TY_PAST)}" fill="none" stroke="#FF8A65" stroke-width="2"/>
+      ${TY_PAST.slice(1, 3).map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.5" fill="#FF8A65"/>`).join('')}
+      <path d="${path(fc)}" fill="none" stroke="#F2C14E" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="5 4"/>
+      <path d="${path(done)}" fill="none" stroke="#F2C14E" stroke-width="2" stroke-dasharray="5 4"/>
+      <g transform="translate(${pos[0]} ${pos[1]})"><path d="M0 -9 C6 -9 9 -4 9 0 M0 9 C-6 9 -9 4 -9 0" fill="none" stroke="#FF7A59" stroke-width="2.4" stroke-linecap="round"/><circle r="4.5" fill="#FF7A59"/></g>
+      <circle cx="${TY_CITY[0]}" cy="${TY_CITY[1]}" r="4" fill="#fff"/>
+      <text x="93" y="74" fill="#F2F3F5" font-size="12" font-weight="600" text-anchor="end">${w.place}</text>`;
+  }
+
+  let playTimer = null;
+
+  function diagramsPage(main) {
+    const t = L().diagrams;
+    const w = t.widget;
+    main.append(pageHead(t.title, t.sub));
+
+    const pic = h('div', { class: 'ty-pic' });
+    const value = h('b', { class: 'num' });
+    const state = h('p', { class: 'ty-state', 'data-k': 'ty-state' });
+    const range = h('input', { type: 'range', min: '0', max: '72', step: '24', value: String(S.diagrams.hr), 'aria-label': w.slider, 'data-k': 'slider' });
+    const ticks = h('div', { class: 'ty-ticks' });
+    const play = h('button', { type: 'button', class: 'btn', 'data-k': 'play' });
+
+    function draw() {
+      const hr = Number(range.value);
+      const [x, y] = tyAt(hr);
+      const km = Math.round((Math.hypot(x - TY_CITY[0], y - TY_CITY[1]) * TY_KM) / 10) * 10;
+      pic.replaceChildren(svgEl(typhoonMap(w, hr), '0 0 318 206', 'ty-svg'));
+      value.textContent = `${hr} ${w.unit}`;
+      state.textContent = w.states[hr / 24].replace('{km}', km);
+      ticks.replaceChildren(...w.labels.map((l, i) => h('button', {
+        type: 'button', class: 'tick' + (i * 24 === hr ? ' on' : ''), 'data-tick': i * 24, 'aria-pressed': String(i * 24 === hr),
+        onclick: () => { stop(); setHr(i * 24); },
+      }, l)));
+      play.textContent = playTimer ? t.pause : t.play;
+    }
+    function setHr(hr) { range.value = String(hr); S.diagrams.hr = hr; save(); draw(); }
+    function stop() { clearInterval(playTimer); playTimer = null; draw(); }
+    range.addEventListener('input', () => { stop(); setHr(Number(range.value)); });
+    play.addEventListener('click', () => {
+      if (playTimer) { stop(); return; }
+      if (Number(range.value) >= 72) setHr(0);
+      playTimer = setInterval(() => {
+        const next = Number(range.value) + 24;
+        if (next > 72) { stop(); return; }
+        setHr(next);
+        if (next >= 72) stop();
+      }, 900);
+      draw();
+    });
+
+    main.append(h('section', { class: 'qa-thread' },
+      h('div', { class: 'qa-ctx' }, h('span', {}, icon('chats'), t.context), h('a', { href: '#/chats/journal/ty-q', class: 'link', 'data-k': 'open-chat' }, L().chats.openInChat)),
+      h('div', { class: 'm me' }, h('div', { class: 'who' }, t.you), h('div', { class: 'm-text' }, t.q)),
+      h('div', { class: 'm bot' }, h('div', { class: 'who' }, t.assistant),
+        h('div', { class: 'm-text' }, t.a[0]),
+        h('figure', { class: 'ty card' },
+          h('figcaption', { class: 'ty-head' }, h('b', {}, w.title), h('span', {}, w.issued)),
+          pic,
+          h('div', { class: 'ty-legend' }, w.legend.map((txt, i) => h('span', {}, h('i', { class: 'k' + i }), txt))),
+          h('div', { class: 'ty-ctrl' },
+            h('label', { class: 'ty-row' }, h('span', {}, w.slider), value),
+            range, ticks, state,
+            h('div', { class: 'ty-btns' }, play))),
+        h('div', { class: 'm-text' }, t.a[1]))));
+    draw();
+  }
+
+  // ── Weather ───────────────────────────────────────────────────────────────
+
+  const WX = {
+    sun: '<circle cx="8" cy="8" r="3.2" fill="#F2A93B"/><g stroke="#F2A93B" stroke-width="1.4" stroke-linecap="round"><path d="M8 1.2v1.8M8 13v1.8M1.2 8h1.8M13 8h1.8M3.2 3.2l1.3 1.3M11.5 11.5l1.3 1.3M3.2 12.8l1.3-1.3M11.5 4.5l1.3-1.3"/></g>',
+    moon: '<circle cx="7.5" cy="8.5" r="5.5" fill="#6B7486"/><circle cx="10.4" cy="6.2" r="4.6" fill="#fff"/>',
+    cloud: '<path d="M4.6 12.4h7a2.8 2.8 0 0 0 .3-5.6 4 4 0 0 0-7.6-.9 2.9 2.9 0 0 0 .3 6.5Z" fill="#9AA3AE"/>',
+    rain: '<path d="M4.6 9.6h7a2.6 2.6 0 0 0 .3-5.2 3.8 3.8 0 0 0-7.2-.8 2.7 2.7 0 0 0-.1 6Z" fill="#7C8796"/><g stroke="#3B82F6" stroke-width="1.4" stroke-linecap="round"><path d="M5.5 11.6l-.8 2M8.5 11.6l-.8 2M11.5 11.6l-.8 2"/></g>',
+  };
+  function wxIcon(kind) { return svgEl(WX[kind], '0 0 16 16', 'wx'); }
+
+  function weatherPage(main) {
+    const t = L().weather;
+    const W = S.weather;
+    main.classList.add('wide');
+    main.append(pageHead(t.title, t.sub));
+
+    const notFollowed = WEATHER_PLACES.filter((p) => !W.follow.includes(p));
+    const select = h('select', { 'aria-label': t.choose, 'data-k': 'place-select' },
+      h('option', { value: '' }, t.choose), notFollowed.map((p) => h('option', { value: p }, t.places[p].name)));
+    const addBtn = h('button', {
+      type: 'button', class: 'btn', 'data-k': 'add-place', disabled: true,
+      onclick: () => { if (select.value && !busy) { W.follow.push(select.value); justAdded = select.value; save(); render(); } },
+    }, t.add);
+    select.addEventListener('change', () => { addBtn.disabled = !select.value; });
+
+    const placeRows = W.follow.map((p) => h('div', { class: 'prow' + (justAdded === p ? ' slide-in' : ''), 'data-place': p },
+      h('span', {}, t.places[p].name),
+      h('button', {
+        type: 'button', class: 'icon-btn', 'aria-label': t.remove(t.places[p].name), 'data-remove': p,
+        onclick: () => {
+          if (busy) return;
+          const card = document.querySelector(`[data-digest="${p}"]`);
+          if (card && !reduceMotion.matches) { card.style.height = card.offsetHeight + 'px'; void card.offsetHeight; card.classList.add('collapsing'); card.style.height = '0px'; }
+          collapseThen(document.querySelector(`[data-place="${p}"]`), () => { W.follow = W.follow.filter((x) => x !== p); save(); render(); });
+        },
+      }, icon('x'))));
+
+    const settings = h('div', { class: 'wx-side' },
+      h('section', { class: 'card wx-places' },
+        h('h2', {}, t.following, h('span', { class: 'count' }, W.follow.length)),
+        placeRows.length ? placeRows : h('p', { class: 'muted' }, t.noPlaces),
+        notFollowed.length ? h('div', { class: 'add-row' }, select, addBtn) : h('p', { class: 'muted small' }, t.allAdded)),
+      h('section', { class: 'card wx-alerts' },
+        h('h2', {}, t.alertsTitle),
+        h('p', { class: 'muted small' }, t.alertsNote),
+        h('div', { class: 'toggles' }, ALERT_TYPES.map((a) => h('label', { class: 'toggle', 'data-alert': a },
+          h('input', { type: 'checkbox', checked: W.alerts[a], 'data-toggle': a, onchange: (ev) => { W.alerts[a] = ev.target.checked; save(); render(); } }),
+          h('span', { class: 'sw', 'aria-hidden': 'true' }),
+          h('span', {}, t.alerts[a]))))));
+
+    const card = h('section', { class: 'card digest', 'data-k': 'digest' },
+      h('div', { class: 'digest-top' }, h('div', { class: 'digest-from' }, t.cardFrom), h('div', { class: 'digest-date' }, t.card.date), h('div', { class: 'digest-hours' }, t.card.hours)),
+      W.follow.length ? W.follow.map((p) => digestPlace(p)) : h('p', { class: 'muted' }, t.noPlaces));
+
+    main.append(h('div', { class: 'wx-cols' }, h('div', { class: 'wx-main' }, h('h2', { class: 'sec' }, t.cardTitle), card), settings));
+  }
+
+  function digestPlace(p) {
+    const t = L().weather;
+    const P = t.places[p];
+    const on = WEATHER[p].watch.filter((k) => S.weather.alerts[k]);
+    const shown = on.slice(0, 2);
+    const left = on.length - shown.length;
+    return h('div', { class: 'dp' + (justAdded === p ? ' slide-in' : ''), 'data-digest': p },
+      h('div', { class: 'dp-facts' },
+        h('div', { class: 'dp-name' }, P.name),
+        shown.map((k) => h('div', { class: 'dp-watch', 'data-watch': k }, h('span', { class: 'dp-line' }, P.watch[k][0]), P.watch[k][1] ? h('span', { class: 'dp-detail' }, P.watch[k][1]) : null)),
+        !shown.length ? h('div', { class: 'dp-detail' }, P.air || t.quiet) : null,
+        left > 0 ? h('div', { class: 'dp-more', 'data-k': 'left-out' }, t.leftOut(left)) : null),
+      h('div', { class: 'dp-periods' },
+        h('span', {}, wxIcon(WEATHER[p].icons[0]), P.day[0]), h('b', { class: 'num' }, P.day[1]),
+        h('span', {}, wxIcon(WEATHER[p].icons[1]), P.night[0]), h('b', { class: 'num' }, P.night[1])));
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  const RENDER = { chats: chatsPage, course: coursePage, journal: journalPage, review: reviewPage, diagrams: diagramsPage, weather: weatherPage };
+  let lastPage = null;
+
+  function render() {
+    const { page, arg, arg2 } = route();
+    if (page !== 'diagrams' && playTimer) { clearInterval(playTimer); playTimer = null; }
+    seq += 1;
+    if (busy) setBusy(false);
+    renderShell(page);
+    const main = document.getElementById('main');
+    const keepScroll = page === lastPage;
+    const y = window.scrollY;
+    main.className = 'main page-' + page + (page !== lastPage && lastPage && !reduceMotion.matches ? ' page-in' : '');
+    main.replaceChildren();
+    RENDER[page](main, arg, arg2);
+    justAdded = null;
+    if (!keepScroll) window.scrollTo(0, 0);
+    else if (!(page === 'course' && arg)) window.scrollTo(0, y);
+    lastPage = page;
+  }
+
+  let resizeTimer = null;
+  let lastW = window.innerWidth;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (window.innerWidth === lastW) return;
+      lastW = window.innerWidth;
+      const map = document.querySelector('.map');
+      if (map && map.fit && !busy) map.fit();
+    }, 150);
+  });
+  window.addEventListener('hashchange', () => { remindOpen = null; focusEntry = null; render(); });
+  window.addEventListener('storage', (e) => { if (e.key === STORE) { S = load(); render(); } });
+  save();
+  render();
+})();

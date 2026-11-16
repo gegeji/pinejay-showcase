@@ -74,6 +74,15 @@
       type: 'button', 'aria-current': p === page ? 'page' : null,
       onclick: () => { if (p !== page) { location.hash = p; } },
     }, t.ui.nav[p])));
+
+    // Entry to the panel demo, a separate page that runs on made-up data.
+    let tryLink = document.querySelector('.try-panel');
+    if (!tryLink) {
+      tryLink = h('a', { class: 'try-panel' });
+      nav.after(tryLink);
+    }
+    tryLink.href = `panel/?lang=${encodeURIComponent(lang)}`;
+    tryLink.replaceChildren(h('span', {}, t.ui.tryPanel), h('span', { class: 'try-sub' }, t.ui.tryPanelSub));
   }
 
   // ── Telegram exhibit ─────────────────────────────────────────────────────
